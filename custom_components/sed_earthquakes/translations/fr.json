@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Séismes Suisse SED",
+        "description": "Configure le suivi des séismes (Service Sismologique Suisse SED) autour d'un emplacement. La latitude/longitude correspondent par défaut à l'emplacement de votre domicile Home Assistant. Ajoutez à nouveau l'intégration pour un autre rayon ou emplacement.",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius_km": "Rayon (km)",
+          "min_magnitude": "Magnitude minimale",
+          "days": "Fenêtre temporelle (jours)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Cette combinaison emplacement/rayon est déjà configurée."
+    }
+  }
+}

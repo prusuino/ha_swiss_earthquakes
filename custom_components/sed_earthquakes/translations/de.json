@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SED Erdbeben Schweiz",
+        "description": "Richtet die Erdbeben-Verfolgung (Schweizerischer Erdbebendienst SED) rund um einen Standort ein. Breiten-/Längengrad sind standardmässig der Home-Assistant-Heimatstandort. Integration erneut hinzufügen für einen anderen Radius oder Standort.",
+        "data": {
+          "latitude": "Breitengrad",
+          "longitude": "Längengrad",
+          "radius_km": "Umkreis (km)",
+          "min_magnitude": "Mindest-Magnitude",
+          "days": "Zeitfenster (Tage)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Diese Standort-/Umkreis-Kombination ist bereits konfiguriert."
+    }
+  }
+}

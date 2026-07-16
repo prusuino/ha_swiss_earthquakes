@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Terremoti Svizzera SED",
+        "description": "Configura il monitoraggio dei terremoti (Servizio Sismico Svizzero SED) attorno a una posizione. Latitudine/longitudine corrispondono per impostazione predefinita alla posizione di casa di Home Assistant. Aggiungi di nuovo l'integrazione per un raggio o una posizione diversi.",
+        "data": {
+          "latitude": "Latitudine",
+          "longitude": "Longitudine",
+          "radius_km": "Raggio (km)",
+          "min_magnitude": "Magnitudo minima",
+          "days": "Finestra temporale (giorni)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Questa combinazione posizione/raggio è già configurata."
+    }
+  }
+}

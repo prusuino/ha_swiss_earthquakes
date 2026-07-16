@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Swiss Earthquakes (SED)",
+        "description": "Sets up earthquake tracking (Swiss Seismological Service SED) around a location. Latitude/longitude default to your Home Assistant home location. Add the integration again for a different radius or location.",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius_km": "Radius (km)",
+          "min_magnitude": "Minimum magnitude",
+          "days": "Time window (days)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This location/radius combination is already configured."
+    }
+  }
+}
