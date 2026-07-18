@@ -14,6 +14,7 @@ from homeassistant.components.geo_location import GeolocationEvent
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfLength
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -70,6 +71,14 @@ class SedEarthquakeEvent(GeolocationEvent):
     _attr_attribution = ATTRIBUTION
     _attr_unit_of_measurement = UnitOfLength.KILOMETERS
     _attr_has_entity_name = False
+    # Hidden from Home Assistant's auto-generated default dashboard map (which
+    # otherwise draws every geo_location entity in the system) — still shown
+    # on this integration's own map card, which references entities by
+    # source/state directly rather than through the visible-by-default list.
+    # visible_default only applies to entities registered for the first time;
+    # async_added_to_hass below covers entities that already existed in the
+    # registry from before this was introduced.
+    _attr_entity_registry_visible_default = False
 
     def __init__(self, hass: HomeAssistant, quake: dict) -> None:
         self._quake = quake
@@ -82,6 +91,18 @@ class SedEarthquakeEvent(GeolocationEvent):
         self._attr_longitude = quake["longitude"]
         self._attr_distance = quake["distance_km"]
         self._attr_icon = _icon_for_magnitude(magnitude)
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        # Retroactively hide entities that were already in the registry
+        # before entity_registry_visible_default existed here — that
+        # attribute only takes effect for entities registered for the first
+        # time. Only touches entries with no hidden_by set yet, so it never
+        # overrides a user's own explicit show/hide choice.
+        registry = er.async_get(self.hass)
+        entry = registry.async_get(self.entity_id)
+        if entry is not None and entry.hidden_by is None:
+            registry.async_update_entity(self.entity_id, hidden_by=er.RegistryEntryHider.INTEGRATION)
 
     @property
     def extra_state_attributes(self):

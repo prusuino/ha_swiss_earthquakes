@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 — 2026-07-18
+
+- Earthquake markers no longer appear on Home Assistant's auto-generated default dashboard map (which draws every geo_location entity in the system). They remain fully visible on the integration's own dashboard map card. Existing installations are migrated automatically; a user's own explicit show/hide choice in the entity registry is never overridden.
+
 ## 1.0.0 — 2026-07-16
 
 Initial public release.
