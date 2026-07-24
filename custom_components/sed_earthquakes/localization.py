@@ -44,6 +44,18 @@ STRINGS: dict[str, dict[str, str]] = {
         "fr": "Dernier séisme",
         "it": "Ultimo terremoto",
     },
+    "latest_summary_sensor_name": {
+        "de": "Letztes Erdbeben Übersicht",
+        "en": "Latest Earthquake Summary",
+        "fr": "Dernier séisme (résumé)",
+        "it": "Ultimo terremoto (riepilogo)",
+    },
+    "summary_date_format": {
+        "de": "%d.%m.%Y %H:%M",
+        "en": "%Y-%m-%d %H:%M",
+        "fr": "%d.%m.%Y %H:%M",
+        "it": "%d.%m.%Y %H:%M",
+    },
     "quake_entity_prefix": {
         "de": "Erdbeben",
         "en": "Earthquake",
