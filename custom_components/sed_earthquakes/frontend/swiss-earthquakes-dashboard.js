@@ -353,6 +353,7 @@ const SEQ_STRINGS = {
     latest: "Latest earthquake",
     strongest: "Strongest earthquake",
     no_quakes: "No earthquakes in the configured time window.",
+    unreachable: "Earthquake data unavailable: the SED service is currently unreachable.",
     attribution: "Data: Swiss Seismological Service SED, ETH Zurich",
     not_configured:
       "### Swiss Earthquakes (SED) is not set up yet\n\nAdd the integration under **Settings → Devices & services** first. This dashboard then fills itself — there is nothing to configure here.",
@@ -363,6 +364,7 @@ const SEQ_STRINGS = {
     latest: "Letztes Erdbeben",
     strongest: "Stärkstes Erdbeben",
     no_quakes: "Keine Erdbeben im eingestellten Zeitfenster.",
+    unreachable: "Erdbebendaten nicht verfügbar: der SED-Dienst ist zurzeit nicht erreichbar.",
     attribution: "Daten: Schweizerischer Erdbebendienst SED, ETH Zürich",
     not_configured:
       "### Swiss Earthquakes (SED) ist noch nicht eingerichtet\n\nFüge die Integration zuerst unter **Einstellungen → Geräte & Dienste** hinzu. Dieses Dashboard füllt sich danach von selbst — hier ist nichts einzustellen.",
@@ -373,6 +375,7 @@ const SEQ_STRINGS = {
     latest: "Dernier séisme",
     strongest: "Séisme le plus fort",
     no_quakes: "Aucun séisme dans la fenêtre temporelle configurée.",
+    unreachable: "Données sismiques indisponibles : le service du SED est actuellement inaccessible.",
     attribution: "Données : Service Sismologique Suisse SED, EPF Zurich",
     not_configured:
       "### Swiss Earthquakes (SED) n'est pas encore configuré\n\nAjoutez d'abord l'intégration sous **Paramètres → Appareils et services**. Ce tableau de bord se remplit ensuite tout seul.",
@@ -383,6 +386,7 @@ const SEQ_STRINGS = {
     latest: "Ultimo terremoto",
     strongest: "Terremoto più forte",
     no_quakes: "Nessun terremoto nella finestra temporale configurata.",
+    unreachable: "Dati sismici non disponibili: il servizio del SED è attualmente irraggiungibile.",
     attribution: "Dati: Servizio Sismico Svizzero SED, ETH Zurigo",
     not_configured:
       "### Swiss Earthquakes (SED) non è ancora configurato\n\nAggiungi prima l'integrazione in **Impostazioni → Dispositivi e servizi**. Questa dashboard si riempie poi da sola.",
@@ -393,11 +397,15 @@ const SEQ_STRINGS = {
  * the strongest event of the window. The summary is a long free-text state
  * ("place · M x.x · date"), which a tile would truncate — a markdown card
  * shows it in full. The template also turns the sensor's unknown state,
- * which is what a quiet period looks like, into a readable sentence. */
+ * which is what a quiet period looks like, into a readable sentence — and
+ * its unavailable state, which means the SED service is unreachable, into
+ * a note saying so rather than the same "no earthquakes" line. */
 const SEQ_summaryCard = (t, summaryId, countId) => {
   const lines = [
     `{% set s = states('${summaryId}') %}`,
-    "{% if s in ['unknown', 'unavailable'] %}",
+    "{% if s == 'unavailable' %}",
+    `_${t("unreachable")}_`,
+    "{% elif s == 'unknown' %}",
     `_${t("no_quakes")}_`,
     "{% else %}",
     `**${t("latest")}:** {{ s }}`,

@@ -13,6 +13,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "Le service du SED est injoignable. Vérifiez votre connexion Internet et réessayez.",
+      "invalid_latitude": "Saisissez une latitude comprise entre -90 et 90.",
+      "invalid_longitude": "Saisissez une longitude comprise entre -180 et 180.",
+      "invalid_radius": "Saisissez un rayon supérieur à 0 km.",
+      "invalid_days": "Saisissez une fenêtre temporelle d'au moins 1 jour."
+    },
     "abort": {
       "already_configured": "Cette combinaison emplacement/rayon est déjà configurée."
     }

@@ -22,16 +22,18 @@ Quarry blasts (which the raw feed also contains) are filtered out server-side (`
 
 | Entity | Description |
 |---|---|
-| `geo_location.earthquake_…` (English) / `geo_location.erdbeben_…` (German) — see [Addressing the map markers](#addressing-the-map-markers) | One per currently tracked earthquake. State = distance from your configured location (km). Attributes: magnitude, magnitude type, depth (km), timestamp, place. Shows up automatically on any Map card; the marker goes unavailable while the SED service is unreachable. |
-| `sensor.sed_earthquakes_count_<radius>km` | Count of earthquakes currently within the configured radius/time window/magnitude threshold. Attribute `strongest_quake` holds the strongest currently tracked event; attribute `magnitude_scale` is a plain-language reference for what different magnitude ranges typically mean (see below). |
-| `sensor.sed_earthquakes_latest_<radius>km` | Timestamp of the most recent earthquake (`device_class: timestamp`) — reliably fires a state-changed trigger whenever a new earthquake appears. Attributes: magnitude, magnitude type, depth, place, distance, event ID. |
-| `sensor.sed_earthquakes_latest_summary_<radius>km` | Human-readable one-line summary of the most recent earthquake: `place · M magnitude · date/time` (localized date format) — ideal for a dashboard tile. Same details as attributes. Use the timestamp sensor above for automation triggers. |
+| `geo_location.sed_earthquake_<event>_<id>` — see [Addressing the map markers](#addressing-the-map-markers) | One per currently tracked earthquake. State = distance from your configured location (km). Attributes: magnitude, magnitude type, depth (km), timestamp, place. Shows up automatically on any Map card; the marker goes unavailable while the SED service is unreachable. |
+| `sensor.sed_earthquakes_count_<radius>km_<id>` | Count of earthquakes currently within the configured radius/time window/magnitude threshold. Attribute `strongest_quake` holds the strongest currently tracked event; attribute `magnitude_scale` is a plain-language reference for what different magnitude ranges typically mean (see below). |
+| `sensor.sed_earthquakes_latest_<radius>km_<id>` | Timestamp of the most recent earthquake (`device_class: timestamp`) — reliably fires a state-changed trigger whenever a new earthquake appears. Attributes: magnitude, magnitude type, depth, place, distance, event ID. |
+| `sensor.sed_earthquakes_latest_summary_<radius>km_<id>` | Human-readable one-line summary of the most recent earthquake: `place · M magnitude · date/time` (localized date format) — ideal for a dashboard tile. Same details as attributes. Use the timestamp sensor above for automation triggers. |
 
-Data is refreshed every 10 minutes.
+`<radius>` is the entry's radius in km and `<id>` a four-character tag of the entry itself (the last four characters of its config entry id, lower-cased) — `sensor.sed_earthquakes_count_150km_7f3a`. The radius alone does not tell two entries apart, since a second entry at another location may well use the same radius; the tag does, and it stays fixed for the life of the entry. You find it in the entity ids on the entry's device page after setup. `<event>` is the public part of the SED event id (`2026nuuviw` for `smi:ch.ethz.sed/sc25a/Event/2026nuuviw`), so a marker's id is the same in every language and does not change when the SED revises the event. These are the ids suggested when an entity is first created: **entities set up with version 1.4 or earlier keep the ids they already have** (sensors without the tag, markers derived from their localized name such as `geo_location.erdbeben_m2_3_sion_vs`), and any entity can be renamed in its settings at any time.
+
+Data is refreshed every 10 minutes; each refresh asks the SED service for at most 200 events, newest first (see [Notes](#notes)).
 
 ### Addressing the map markers
 
-The map markers are the one kind of entity without a fixed entity id: Home Assistant derives the object id from the entity's name, and that name is localized. The same event is `geo_location.erdbeben_m2_3_sion_vs` on a German instance and `geo_location.earthquake_m2_3_sion_vs` on an English one (French `geo_location.seisme_…`, Italian `geo_location.terremoto_…`). A card or template written against one language finds nothing on the other, so do not address markers by entity id — use their `source` attribute, which is always `sed_earthquakes`:
+A marker's entity id is built from the SED event id (`geo_location.sed_earthquake_2026nuuviw_7f3a`), so it is the same in every language and survives revisions — but it only exists once the earthquake has happened, so a card or template cannot name markers in advance. Address them by their `source` attribute instead, which is always `sed_earthquakes`. That also covers markers created by versions before 1.5.0, whose ids were derived from the localized name (`geo_location.erdbeben_m2_3_sion_vs` on a German instance, `geo_location.earthquake_m2_3_sion_vs` on an English one) and stay as they are until the earthquake ages out of the time window:
 
 - **Map card** — `geo_location_sources` draws every marker of this integration (also the ones hidden from the auto-generated overview) and follows earthquakes as they appear and age out, and it can put the magnitude on the marker label:
 
@@ -55,7 +57,7 @@ The map markers are the one kind of entity without a fixed entity id: Home Assis
 
   This lists the tracked earthquakes of magnitude 2.5 or more, in any language.
 
-For a notification on a new earthquake, trigger on `sensor.sed_earthquakes_latest_<radius>km` instead — its id is fixed, and its attributes carry the details of the event.
+For a notification on a new earthquake, trigger on `sensor.sed_earthquakes_latest_<radius>km_<id>` instead — its id is fixed, and its attributes carry the details of the event.
 
 ## Language
 
@@ -63,7 +65,7 @@ Entity names, the device name/manufacturer/model, the config flow, and the texts
 
 ### Magnitude scale
 
-`sensor.sed_earthquakes_count_<radius>km` carries a `magnitude_scale` attribute with a rough, SED-sourced orientation of what different magnitudes typically mean in Switzerland (localized to your HA language):
+`sensor.sed_earthquakes_count_<radius>km_<id>` carries a `magnitude_scale` attribute with a rough, SED-sourced orientation of what different magnitudes typically mean in Switzerland (localized to your HA language):
 
 | Magnitude | Typical effect |
 |---|---|
@@ -96,9 +98,10 @@ Until the integration shows up in the HACS search, the button above adds it as a
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **"Swiss Earthquakes (SED)"**.
-3. Latitude/longitude default to your Home Assistant home location. Set the radius (km), minimum magnitude, and time window (days) to your preference.
-4. Done. Add the integration again for a different location or radius — each instance is independent.
-5. Optional: register the [strategy file](#adding-the-strategy-as-a-resource) as a resource and set up the [dashboard](#dashboard). The integration works fully without it — this only saves you building the map card yourself.
+3. Latitude/longitude default to your Home Assistant home location. Set the radius (km), minimum magnitude, and time window (days) to your preference. The coordinates, radius, magnitude and window are sent to the SED service with every query (see [Notes](#notes)); if you would rather not send your exact home location, round the coordinates to two decimals.
+4. Submit. The form rejects a radius of 0, a time window under a day and coordinates outside the valid range, and sends one query to the SED service first — an unreachable service shows up here rather than as a failed setup afterwards.
+5. Done. Add the integration again for a different location or radius — each instance is independent.
+6. Optional: register the [strategy file](#adding-the-strategy-as-a-resource) as a resource and set up the [dashboard](#dashboard). The integration works fully without it — this only saves you building the map card yourself.
 
 ## Dashboard
 
@@ -136,7 +139,7 @@ views: []
 You get:
 
 - a **Map** view — every tracked earthquake on a full-screen map, each marker labeled with its magnitude (the same map card the integration used to create for you). The view is there even while no earthquake is in the configured time window;
-- an **Overview** view — one section per configured location: the earthquake count and the time of the latest event as tiles, plus a text card with the latest and the strongest earthquake of the window.
+- an **Overview** view — one section per configured location: the earthquake count and the time of the latest event as tiles, plus a text card with the latest and the strongest earthquake of the window (or a note that the SED service is unreachable while it is).
 
 The strategy also appears under **+ Add dashboard** as *Swiss Earthquakes*, which does the same thing without the raw editor.
 
@@ -202,7 +205,9 @@ default_zoom: 8
 
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.
 - This integration is unofficial and not affiliated with, endorsed by, or supported by the SED or ETH Zurich. It only reads their published data via the standard FDSN protocol.
-- If the FDSN service is unreachable, the sensors and the map markers become unavailable rather than showing stale data, and come back on the next successful refresh.
+- Each refresh asks the SED service for at most 200 events, newest first. With a large radius, a low minimum magnitude and a long time window, a busy period (an earthquake swarm, say) can exceed that: the oldest events of the window are then left out — the count sensor stops at 200 and the oldest markers disappear early. Raise the minimum magnitude or shorten the window if that matters to you.
+- What leaves your instance: with every refresh, the configured latitude and longitude, radius, minimum magnitude and time window are sent to `https://eida.ethz.ch/fdsnws/event/1/query` as query parameters over HTTPS — nothing else, and no identifiers. The coordinates default to your home location at full precision; entering them rounded to two decimals (about 1 km) makes no practical difference to the result. See [SECURITY.md](SECURITY.md).
+- If the FDSN service is unreachable, the sensors and the map markers become unavailable rather than showing stale data, and come back on the next successful refresh. The log records the HTTP status (or the error type) of the failed request, not its URL.
 - A marker whose earthquake has aged out of the time window is removed completely — entity and entity-registry entry — so it does not linger as an unavailable entity. Markers of earthquakes still in the window keep whatever you changed on them (name, visibility, area).
 
 ## Data source & license

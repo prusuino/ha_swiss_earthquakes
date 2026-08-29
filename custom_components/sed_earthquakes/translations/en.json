@@ -13,6 +13,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "The SED service could not be reached. Check your internet connection and try again.",
+      "invalid_latitude": "Enter a latitude between -90 and 90.",
+      "invalid_longitude": "Enter a longitude between -180 and 180.",
+      "invalid_radius": "Enter a radius greater than 0 km.",
+      "invalid_days": "Enter a time window of at least 1 day."
+    },
     "abort": {
       "already_configured": "This location/radius combination is already configured."
     }

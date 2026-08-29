@@ -13,6 +13,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "Il servizio del SED non è raggiungibile. Controlla la connessione Internet e riprova.",
+      "invalid_latitude": "Inserisci una latitudine compresa tra -90 e 90.",
+      "invalid_longitude": "Inserisci una longitudine compresa tra -180 e 180.",
+      "invalid_radius": "Inserisci un raggio superiore a 0 km.",
+      "invalid_days": "Inserisci una finestra temporale di almeno 1 giorno."
+    },
     "abort": {
       "already_configured": "Questa combinazione posizione/raggio è già configurata."
     }

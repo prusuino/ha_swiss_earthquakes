@@ -17,9 +17,11 @@ from homeassistant.const import UnitOfLength
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
 
 from .const import DOMAIN
 from .coordinator import SedEarthquakesCoordinator
+from .device import entry_suffix
 from .localization import t
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +46,18 @@ def _marker_unique_id(entry_id: str, event_id: str) -> str:
     place that defines it, so the registry cleanup below judges staleness by
     exactly the ids the sync creates."""
     return f"{_entry_unique_id_prefix(entry_id)}{event_id}"
+
+
+def _marker_object_id(entry: ConfigEntry, event_id: str) -> str:
+    """Object id suggested for a new marker: the public part of the SED event
+    id (the last path segment of smi:ch.ethz.sed/sc25a/Event/2026nuuviw) plus
+    the entry's tag — sed_earthquake_2026nuuviw_7f3a. Language-neutral, unlike
+    the localized name Home Assistant would otherwise derive it from, and
+    fixed for the life of the event: a revision changes the name (the
+    magnitude is part of it) but not the id. Only a suggestion — a marker
+    already in the registry keeps the id it has."""
+    public_id = slugify(event_id.rstrip("/").rsplit("/", 1)[-1]) or slugify(event_id)
+    return f"sed_earthquake_{public_id}_{entry_suffix(entry)}"
 
 
 def _migrate_marker_registry(registry: er.EntityRegistry, entry_id: str) -> None:
@@ -173,7 +187,7 @@ async def async_setup_entry(
         for event_id, quake in quakes.items():
             entity = known_entities.get(event_id)
             if entity is None:
-                entity = SedEarthquakeEvent(hass, coordinator, entry.entry_id, quake)
+                entity = SedEarthquakeEvent(hass, coordinator, entry, quake)
                 known_entities[event_id] = entity
                 new_entities.append(entity)
             else:
@@ -223,12 +237,13 @@ class SedEarthquakeEvent(GeolocationEvent):
         self,
         hass: HomeAssistant,
         coordinator: SedEarthquakesCoordinator,
-        entry_id: str,
+        entry: ConfigEntry,
         quake: dict,
     ) -> None:
         self._hass = hass
         self._coordinator = coordinator
-        self._attr_unique_id = _marker_unique_id(entry_id, quake["event_id"])
+        self._attr_unique_id = _marker_unique_id(entry.entry_id, quake["event_id"])
+        self.entity_id = f"geo_location.{_marker_object_id(entry, quake['event_id'])}"
         self._apply(quake)
 
     def _apply(self, quake: dict) -> None:
@@ -247,9 +262,9 @@ class SedEarthquakeEvent(GeolocationEvent):
     def async_apply_revision(self, quake: dict) -> None:
         """Follow a revised version of this event and republish the state.
 
-        The unique_id is derived from the event ID and stays the same, so the
-        entity_id is unaffected — only the displayed name, the marker position
-        and the attributes follow the revision. State is written even when the
+        The unique_id and the entity_id are derived from the event ID and stay
+        the same — only the displayed name, the marker position and the
+        attributes follow the revision. State is written even when the
         record is unchanged: after a failed refresh the data is the same but
         the availability is not, and that flip has to reach the state machine.
         """

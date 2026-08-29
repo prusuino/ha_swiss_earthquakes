@@ -10,6 +10,7 @@ import logging
 import math
 from datetime import timedelta
 
+import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -30,6 +31,18 @@ from .const import (
 from .localization import t
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def describe_error(err: BaseException) -> str:
+    """One-line description of a failed request for a log message or an
+    UpdateFailed. Deliberately not str(err): aiohttp's ClientResponseError
+    prints the request URL, whose query string carries the configured
+    coordinates, and that has no business in the log."""
+    if isinstance(err, aiohttp.ClientResponseError):
+        return f"HTTP {err.status} {err.message or ''}".rstrip()
+    if isinstance(err, TimeoutError):
+        return "timeout"
+    return f"{type(err).__name__}: {err}"
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -122,6 +135,7 @@ class SedEarthquakesCoordinator(DataUpdateCoordinator[dict]):
             hass,
             _LOGGER,
             name=DOMAIN,
+            config_entry=entry,
             update_interval=timedelta(minutes=UPDATE_INTERVAL_MINUTES),
         )
         self._entry = entry
@@ -137,6 +151,12 @@ class SedEarthquakesCoordinator(DataUpdateCoordinator[dict]):
                 data[CONF_MIN_MAGNITUDE],
                 data[CONF_DAYS],
             )
-        except Exception as err:
-            raise UpdateFailed(f"SED earthquake data unreachable: {err}") from err
+        except (aiohttp.ClientError, TimeoutError) as err:
+            # Only transport failures are reported as unreachable, and
+            # without the request URL (see describe_error). Anything else
+            # is a programming error and propagates with its traceback
+            # instead of being disguised as a connection problem.
+            raise UpdateFailed(
+                f"SED earthquake data unreachable: {describe_error(err)}"
+            ) from err
         return {"quakes": quakes, "count": len(quakes)}

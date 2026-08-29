@@ -13,6 +13,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "Der SED-Dienst ist nicht erreichbar. Prüfe die Internetverbindung und versuche es erneut.",
+      "invalid_latitude": "Gib einen Breitengrad zwischen -90 und 90 ein.",
+      "invalid_longitude": "Gib einen Längengrad zwischen -180 und 180 ein.",
+      "invalid_radius": "Gib einen Umkreis grösser als 0 km ein.",
+      "invalid_days": "Gib ein Zeitfenster von mindestens 1 Tag ein."
+    },
     "abort": {
       "already_configured": "Diese Standort-/Umkreis-Kombination ist bereits konfiguriert."
     }

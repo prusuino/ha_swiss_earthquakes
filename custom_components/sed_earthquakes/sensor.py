@@ -10,7 +10,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import CONF_DAYS, CONF_MIN_MAGNITUDE, CONF_RADIUS_KM, DOMAIN
 from .coordinator import SedEarthquakesCoordinator
-from .device import device_info
+from .device import device_info, entry_suffix
 from .localization import magnitude_scale, t
 
 ATTRIBUTION = "Data: Swiss Seismological Service SED, ETH Zurich"
@@ -51,7 +51,8 @@ class SedEarthquakeCountSensor(CoordinatorEntity[SedEarthquakesCoordinator], Sen
         self._attr_unique_id = f"{entry.entry_id}_count"
         self._attr_device_info = device_info(hass, entry)
         radius = entry.data.get(CONF_RADIUS_KM)
-        self.entity_id = f"sensor.sed_earthquakes_count_{round(radius)}km"
+        # Suggested id only (see entry_suffix): existing entities keep theirs.
+        self.entity_id = f"sensor.sed_earthquakes_count_{round(radius)}km_{entry_suffix(entry)}"
 
     @property
     def native_value(self):
@@ -96,7 +97,7 @@ class SedLatestEarthquakeSensor(CoordinatorEntity[SedEarthquakesCoordinator], Se
         self._attr_unique_id = f"{entry.entry_id}_latest"
         self._attr_device_info = device_info(hass, entry)
         radius = entry.data.get(CONF_RADIUS_KM)
-        self.entity_id = f"sensor.sed_earthquakes_latest_{round(radius)}km"
+        self.entity_id = f"sensor.sed_earthquakes_latest_{round(radius)}km_{entry_suffix(entry)}"
 
     def _quake(self) -> dict | None:
         quakes = list((self.coordinator.data or {}).get("quakes", {}).values())
@@ -152,7 +153,9 @@ class SedLatestEarthquakeSummarySensor(
         self._attr_unique_id = f"{entry.entry_id}_latest_summary"
         self._attr_device_info = device_info(hass, entry)
         radius = entry.data.get(CONF_RADIUS_KM)
-        self.entity_id = f"sensor.sed_earthquakes_latest_summary_{round(radius)}km"
+        self.entity_id = (
+            f"sensor.sed_earthquakes_latest_summary_{round(radius)}km_{entry_suffix(entry)}"
+        )
 
     def _quake(self) -> dict | None:
         quakes = list((self.coordinator.data or {}).get("quakes", {}).values())

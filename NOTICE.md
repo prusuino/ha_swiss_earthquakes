@@ -14,4 +14,4 @@ Official SED site: https://www.seismo.ethz.ch/
 
 ## Magnitude scale disclaimer
 
-The `magnitude_scale` attribute on `sensor.sed_earthquakes_count_<radius>km` is a rough orientation based on general thresholds published by the SED (see their [magnitude FAQ](https://www.seismo.ethz.ch/en/knowledge/faq/what-does-magnitude-mean/)). It is **not a prediction** — actual effects of any given earthquake depend heavily on depth, distance to the epicenter, and local subsoil conditions.
+The `magnitude_scale` attribute on `sensor.sed_earthquakes_count_<radius>km_<id>` is a rough orientation based on general thresholds published by the SED (see their [magnitude FAQ](https://www.seismo.ethz.ch/en/knowledge/faq/what-does-magnitude-mean/)). It is **not a prediction** — actual effects of any given earthquake depend heavily on depth, distance to the epicenter, and local subsoil conditions.
