@@ -203,6 +203,7 @@ default_zoom: 8
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.
 - This integration is unofficial and not affiliated with, endorsed by, or supported by the SED or ETH Zurich. It only reads their published data via the standard FDSN protocol.
 - If the FDSN service is unreachable, the sensors and the map markers become unavailable rather than showing stale data, and come back on the next successful refresh.
+- A marker whose earthquake has aged out of the time window is removed completely — entity and entity-registry entry — so it does not linger as an unavailable entity. Markers of earthquakes still in the window keep whatever you changed on them (name, visibility, area).
 
 ## Data source & license
 

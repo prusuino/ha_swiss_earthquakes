@@ -4,8 +4,8 @@ Home Assistant map card.
 Custom lightweight management instead of an external feed-manager package: on
 every coordinator update, the current earthquake list is diffed against the
 entities already created (new ones added, ones that fell out of the window
-removed, known ones refreshed in place so their marker follows revisions and
-the coordinator's availability).
+removed together with their entity-registry entry, known ones refreshed in
+place so their marker follows revisions and the coordinator's availability).
 """
 from __future__ import annotations
 
@@ -39,6 +39,13 @@ def _entry_unique_id_prefix(entry_id: str) -> str:
     return f"{_UNIQUE_ID_PREFIX}{entry_id}_"
 
 
+def _marker_unique_id(entry_id: str, event_id: str) -> str:
+    """Unique id of one config entry's marker for one SED event — the single
+    place that defines it, so the registry cleanup below judges staleness by
+    exactly the ids the sync creates."""
+    return f"{_entry_unique_id_prefix(entry_id)}{event_id}"
+
+
 def _migrate_marker_registry(registry: er.EntityRegistry, entry_id: str) -> None:
     """One-time registry maintenance for this entry's map markers, run before
     the first marker is added so nothing gets registered twice.
@@ -69,14 +76,89 @@ def _migrate_marker_registry(registry: er.EntityRegistry, entry_id: str) -> None
         _LOGGER.debug("Migrated map marker %s to the entry-scoped unique id", reg_entry.entity_id)
 
 
+def _remove_stale_marker_registry_entries(
+    registry: er.EntityRegistry, entry_id: str, data: dict | None
+) -> None:
+    """Remove this entry's registry entries of markers whose earthquake is gone.
+
+    Every marker has a unique id (that is what lets it start hidden from the
+    auto-generated map), so every marker has a registry entry. Until 1.4.0 an
+    earthquake that aged out of the time window only had its entity removed;
+    the registry entry stayed behind and came back on every start as an
+    unavailable "restored" entity — for good, since an expired SED event id
+    never returns. Expiry now removes the registry entry as well (see
+    _async_remove_marker); this routine picks up what earlier releases left
+    behind, and the markers of earthquakes that expired while Home Assistant
+    was not running.
+
+    Stale means: a geo_location entity of this platform that belongs to this
+    config entry and whose unique id is not one the sync would create for the
+    current data. Markers still in the data are kept, with everything the
+    user changed on them. Sensors, other config entries and other
+    integrations are never touched. Running it again finds nothing.
+
+    Runs after _migrate_marker_registry (it judges by the entry-scoped ids)
+    and only once the coordinator has data.
+    """
+    if data is None:
+        # No successful refresh yet, so nothing is known about which
+        # earthquakes are current — every marker would look stale and this
+        # entry's whole map would be wiped from the registry. Skipped; the
+        # next start tries again.
+        _LOGGER.debug("No earthquake data yet, leaving the marker registry as it is")
+        return
+    live_unique_ids = {
+        _marker_unique_id(entry_id, event_id) for event_id in data.get("quakes", {})
+    }
+    removed = 0
+    for reg_entry in er.async_entries_for_config_entry(registry, entry_id):
+        if reg_entry.domain != "geo_location" or reg_entry.platform != DOMAIN:
+            continue
+        if reg_entry.unique_id in live_unique_ids:
+            continue
+        registry.async_remove(reg_entry.entity_id)
+        removed += 1
+    if removed:
+        _LOGGER.debug(
+            "Removed %d map markers of expired earthquakes from the entity registry", removed
+        )
+
+
+@callback
+def _async_remove_marker(
+    hass: HomeAssistant, registry: er.EntityRegistry, entity: SedEarthquakeEvent
+) -> None:
+    """Retire the marker of an earthquake that left the time window.
+
+    Removing the entity-registry entry is the complete operation: a live
+    entity listens for its own registry removal and leaves the state machine
+    by itself, which is how Home Assistant core retires entities. Removing
+    only the entity (as before 1.4.0) left the registry entry behind, and
+    with it an unavailable "restored" ghost on every later start — see
+    _remove_stale_marker_registry_entries. The unique id carries the config
+    entry, so the lookup can only hit this entry's own marker. A marker
+    without a registry entry is removed directly, as before.
+    """
+    entity_id = registry.async_get_entity_id("geo_location", DOMAIN, entity.unique_id)
+    if entity_id is not None:
+        registry.async_remove(entity_id)
+        return
+    hass.async_create_task(entity.async_remove(force_remove=True))
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     coordinator: SedEarthquakesCoordinator = hass.data[DOMAIN][entry.entry_id]
+    registry = er.async_get(hass)
     known_entities: dict[str, SedEarthquakeEvent] = {}
 
     # Before the first marker is added, so nothing gets registered twice.
-    _migrate_marker_registry(er.async_get(hass), entry.entry_id)
+    _migrate_marker_registry(registry, entry.entry_id)
+    # After the migration and before the first sync: what the data no longer
+    # contains has no entity to come and never will, so its registry entry
+    # goes now instead of resurfacing as an unavailable restored entity.
+    _remove_stale_marker_registry_entries(registry, entry.entry_id, coordinator.data)
 
     @callback
     def _sync_entities() -> None:
@@ -103,8 +185,7 @@ async def async_setup_entry(
             async_add_entities(new_entities)
 
         for event_id in [e for e in known_entities if e not in quakes]:
-            entity = known_entities.pop(event_id)
-            hass.async_create_task(entity.async_remove(force_remove=True))
+            _async_remove_marker(hass, registry, known_entities.pop(event_id))
 
     entry.async_on_unload(coordinator.async_add_listener(_sync_entities))
     _sync_entities()
@@ -147,7 +228,7 @@ class SedEarthquakeEvent(GeolocationEvent):
     ) -> None:
         self._hass = hass
         self._coordinator = coordinator
-        self._attr_unique_id = f"{_entry_unique_id_prefix(entry_id)}{quake['event_id']}"
+        self._attr_unique_id = _marker_unique_id(entry_id, quake["event_id"])
         self._apply(quake)
 
     def _apply(self, quake: dict) -> None:
