@@ -31,7 +31,7 @@ Data is refreshed every 10 minutes.
 
 ## Language
 
-Entity names, the device name/manufacturer/model, the auto-generated dashboard, and the config flow adapt automatically to your Home Assistant language setting — German, English, French, and Italian are supported, with English as the fallback for any other language.
+Entity names, the device name/manufacturer/model, and the config flow adapt automatically to your Home Assistant language setting — German, English, French, and Italian are supported, with English as the fallback for any other language.
 
 ### Magnitude scale
 
@@ -67,11 +67,15 @@ This is a rough orientation, not a prediction — actual effects depend heavily 
 3. Latitude/longitude default to your Home Assistant home location. Set the radius (km), minimum magnitude, and time window (days) to your preference.
 4. Done. Add the integration again for a different location or radius — each instance is independent.
 
-### Automatic dashboard
+### Showing the earthquakes on a map
 
-On first setup, the integration automatically creates an **"Earthquakes Switzerland"** dashboard (shown in the sidebar, title localized to your HA language) with a full-screen native Home Assistant Map card, already configured to display each earthquake's magnitude directly on its marker (via the map card's built-in `label_mode: attribute` option — no custom card, no extra HACS dependency). This only happens once: if you later customize or delete that dashboard yourself, the integration won't touch it again.
+Every earthquake becomes a `geo_location` entity, so Home Assistant's **built-in Map card** can display them — no custom card and no extra HACS dependency required. The card can label each marker with the event's magnitude out of the box, via its `label_mode: attribute` option.
 
-If you prefer to build your own map card instead, the native Map card supports magnitude labels out of the box:
+To set this up:
+
+1. Open the dashboard you want to use (or create a new one under **Settings → Dashboards → Add dashboard**).
+2. Choose **Edit dashboard → Add card → Manual**.
+3. Paste the following configuration:
 
 ```yaml
 type: map
@@ -79,7 +83,12 @@ geo_location_sources:
   - source: sed_earthquakes
     label_mode: attribute
     attribute: magnitude
+default_zoom: 8
 ```
+
+The integration deliberately does not create or modify any dashboard on your behalf — your dashboards stay entirely under your own control.
+
+> **Note:** the earthquake entities are hidden by default so they don't flood Home Assistant's auto-generated overview map. This only affects entities the first time they are registered; the Map card above finds them regardless, because it selects them by source.
 
 ## Notes
 

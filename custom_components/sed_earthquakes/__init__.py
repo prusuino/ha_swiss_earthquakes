@@ -1,16 +1,11 @@
 """Swiss Earthquakes (SED) integration."""
 from __future__ import annotations
 
-import logging
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .coordinator import SedEarthquakesCoordinator
-from .dashboard import async_ensure_dashboard
-
-_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor", "geo_location"]
 
@@ -21,11 +16,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    try:
-        await async_ensure_dashboard(hass)
-    except Exception:  # noqa: BLE001 - dashboard setup must never block integration setup
-        _LOGGER.exception("Automatic earthquake dashboard setup failed")
 
     return True
 

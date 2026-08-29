@@ -1,6 +1,6 @@
 # Data Source & Attribution
 
-This integration retrieves earthquake data at runtime from the public **FDSN Event Web Service** of the **Swiss Seismological Service (SED), ETH Zurich** (`arclink.ethz.ch`).
+This integration retrieves earthquake data at runtime from the public **FDSN Event Web Service** of the **Swiss Seismological Service (SED), ETH Zurich** (`eida.ethz.ch`).
 
 Per the SED's terms of use, citation with a correct statement of the source is required whenever this data is used or displayed, separately from this repository's MIT-licensed source code.
 

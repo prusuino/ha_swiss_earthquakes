@@ -1,11 +1,11 @@
-"""Runtime string localization (entity names, device info, dashboard content).
+"""Runtime string localization (entity names, device info, sensor attributes).
 
 Home Assistant's built-in translation system (strings.json / translations/*.json)
-only covers config/options flow text. Entity names, device info, the
-auto-generated dashboard, and the magnitude scale attribute are set directly
-by this integration's Python code and are not covered by that mechanism, so
-we do our own minimal lookup here, keyed by hass.config.language. Falls back
-to English for any language we don't have strings for.
+only covers config/options flow text. Entity names, device info and the
+magnitude scale attribute are set directly by this integration's Python code
+and are not covered by that mechanism, so we do our own minimal lookup here,
+keyed by hass.config.language. Falls back to English for any language we
+don't have strings for.
 """
 from __future__ import annotations
 
@@ -67,18 +67,6 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Unknown location",
         "fr": "Lieu inconnu",
         "it": "Luogo sconosciuto",
-    },
-    "dashboard_title": {
-        "de": "Erdbeben Schweiz",
-        "en": "Earthquakes Switzerland",
-        "fr": "Séismes Suisse",
-        "it": "Terremoti Svizzera",
-    },
-    "map_card_title": {
-        "de": "SED Erdbeben Schweiz",
-        "en": "SED Earthquakes Switzerland",
-        "fr": "Séismes Suisse SED",
-        "it": "Terremoti Svizzera SED",
     },
 }
 
