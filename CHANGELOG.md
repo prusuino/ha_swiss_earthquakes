@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1 — 2026-08-29
+
+- Updated the bundled dashboard-strategy core to 1.1.1: `map: false` now also removes a map section inside a view, `max_columns` is honoured in the view-strategy flavour, and a view's header is kept when the strategy fills a single view. No change to the integration itself.
+
 ## 1.4.0 — 2026-08-29
 
 - **Fixed: the map markers of two overlapping entries no longer collide.** A marker's unique id was the SED event id alone, so when a second entry covered some of the same earthquakes (a home and a holiday location whose radii overlap, say), Home Assistant rejected that entry's markers for the shared events as duplicates — they were silently missing from its map, with nothing but a log line. The unique id now includes the config entry. **Existing markers are migrated automatically on the first start**: each entry's registry entries are moved to the new unique id in place, so entity ids, history, and anything you changed on a marker (name, visibility, area) are kept. Nothing to do on your side.
