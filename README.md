@@ -1,6 +1,6 @@
 # Swiss Earthquakes (SED)
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <a href="https://www.buymeacoffee.com/prusuino"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="20"></a>
 
@@ -22,12 +22,40 @@ Quarry blasts (which the raw feed also contains) are filtered out server-side (`
 
 | Entity | Description |
 |---|---|
-| `geo_location.earthquake_<magnitude>_<place>` | One per currently tracked earthquake. State = distance from your configured location (km). Attributes: magnitude, magnitude type, depth (km), timestamp, place. Shows up automatically on any Map card. |
+| `geo_location.earthquake_…` (English) / `geo_location.erdbeben_…` (German) — see [Addressing the map markers](#addressing-the-map-markers) | One per currently tracked earthquake. State = distance from your configured location (km). Attributes: magnitude, magnitude type, depth (km), timestamp, place. Shows up automatically on any Map card; the marker goes unavailable while the SED service is unreachable. |
 | `sensor.sed_earthquakes_count_<radius>km` | Count of earthquakes currently within the configured radius/time window/magnitude threshold. Attribute `strongest_quake` holds the strongest currently tracked event; attribute `magnitude_scale` is a plain-language reference for what different magnitude ranges typically mean (see below). |
 | `sensor.sed_earthquakes_latest_<radius>km` | Timestamp of the most recent earthquake (`device_class: timestamp`) — reliably fires a state-changed trigger whenever a new earthquake appears. Attributes: magnitude, magnitude type, depth, place, distance, event ID. |
 | `sensor.sed_earthquakes_latest_summary_<radius>km` | Human-readable one-line summary of the most recent earthquake: `place · M magnitude · date/time` (localized date format) — ideal for a dashboard tile. Same details as attributes. Use the timestamp sensor above for automation triggers. |
 
 Data is refreshed every 10 minutes.
+
+### Addressing the map markers
+
+The map markers are the one kind of entity without a fixed entity id: Home Assistant derives the object id from the entity's name, and that name is localized. The same event is `geo_location.erdbeben_m2_3_sion_vs` on a German instance and `geo_location.earthquake_m2_3_sion_vs` on an English one (French `geo_location.seisme_…`, Italian `geo_location.terremoto_…`). A card or template written against one language finds nothing on the other, so do not address markers by entity id — use their `source` attribute, which is always `sed_earthquakes`:
+
+- **Map card** — `geo_location_sources` draws every marker of this integration (also the ones hidden from the auto-generated overview) and follows earthquakes as they appear and age out, and it can put the magnitude on the marker label:
+
+  ```yaml
+  type: map
+  geo_location_sources:
+    - source: sed_earthquakes
+      label_mode: attribute
+      attribute: magnitude
+  ```
+
+- **Templates** — filter the `geo_location` domain on the `source` attribute instead of naming entities:
+
+  ```jinja
+  {{ states.geo_location
+     | selectattr('attributes.source', 'eq', 'sed_earthquakes')
+     | rejectattr('attributes.magnitude', 'none')
+     | selectattr('attributes.magnitude', 'ge', 2.5)
+     | map(attribute='name') | list }}
+  ```
+
+  This lists the tracked earthquakes of magnitude 2.5 or more, in any language.
+
+For a notification on a new earthquake, trigger on `sensor.sed_earthquakes_latest_<radius>km` instead — its id is fixed, and its attributes carry the details of the event.
 
 ## Language
 
@@ -51,9 +79,13 @@ This is a rough orientation, not a prediction — actual effects depend heavily 
 
 ### HACS (recommended)
 
-1. In HACS, go to **Integrations → ⋮ → Custom repositories**, add this repository URL with category **Integration**.
-2. Search for **"Swiss Earthquakes"** and install.
-3. Restart Home Assistant.
+1. Open **HACS**, search for **"Swiss Earthquakes"** and download it — or use the button, which opens the integration directly in your HACS:
+
+   [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=prusuino&repository=ha_swiss_earthquakes&category=integration)
+
+2. Restart Home Assistant.
+
+Until the integration shows up in the HACS search, the button above adds it as a custom repository.
 
 ### Manual
 
@@ -170,7 +202,7 @@ default_zoom: 8
 
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.
 - This integration is unofficial and not affiliated with, endorsed by, or supported by the SED or ETH Zurich. It only reads their published data via the standard FDSN protocol.
-- If the FDSN service is unreachable, entities simply stop updating rather than showing incorrect data.
+- If the FDSN service is unreachable, the sensors and the map markers become unavailable rather than showing stale data, and come back on the next successful refresh.
 
 ## Data source & license
 

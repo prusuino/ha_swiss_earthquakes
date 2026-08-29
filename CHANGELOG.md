@@ -1,7 +1,9 @@
 # Changelog
 
-## 1.3.1 — 2026-08-29
+## 1.4.0 — 2026-08-29
 
+- **Fixed: the map markers of two overlapping entries no longer collide.** A marker's unique id was the SED event id alone, so when a second entry covered some of the same earthquakes (a home and a holiday location whose radii overlap, say), Home Assistant rejected that entry's markers for the shared events as duplicates — they were silently missing from its map, with nothing but a log line. The unique id now includes the config entry. **Existing markers are migrated automatically on the first start**: each entry's registry entries are moved to the new unique id in place, so entity ids, history, and anything you changed on a marker (name, visibility, area) are kept. Nothing to do on your side.
+- **Fixed: map markers go unavailable while the SED service is unreachable**, as the sensors already did. Until now a marker kept showing its last known label indefinitely, however stale the data behind it was; it now follows the sensors and comes back on the next successful refresh.
 - **New: a dashboard strategy** replaces the automatic dashboard that 1.3.0 removed without a substitute. A strategy is a recipe Home Assistant renders in the browser: it stores nothing, overwrites nothing, and reflects your current setup on every page load — a second location gets its own section by itself, a removed one disappears with no leftover card. It renders the same full-screen map as before (markers labeled with the magnitude, shown even while no earthquake is in the time window) plus an overview per configured location: the earthquake count and the time of the latest event as tiles, and a text card with the latest and the strongest earthquake. Setup is in the README; in short, a new dashboard with:
 
   ```yaml
@@ -14,6 +16,8 @@
 - **One-time step:** the integration serves the strategy file at `/sed_earthquakes_files/swiss-earthquakes-dashboard.js` but does not register it as a Lovelace resource — the resource list is part of your dashboard configuration, and nothing is written there. Add it once under **Settings → Dashboards → ⋮ → Resources** (type *JavaScript module*); the README has the details. The map card snippet from the README keeps working unchanged, and an existing dashboard needs no adjustment.
 - Changed: the minimum Home Assistant version is now **2025.4.0** (previously 2024.1.0). The file is served through `async_register_static_paths` (added in 2024.7), and the dashboard it builds uses the heading card (2024.10), `grid_options` card sizing (2024.11), the markdown card's `text_only` option (2025.3) and attribute labels on geo-location sources of the map card (2025.4) — older releases render the map, but without the magnitude label on the markers.
 - Added `http` to the integration's dependencies, since it now serves a file.
+- Documented: a map marker's entity id follows its localized name (`geo_location.erdbeben_…` on a German instance, `geo_location.earthquake_…` on an English one), so it differs between installations. The README now shows how to address markers independently of the language — the map card's `geo_location_sources` and the `source` attribute in templates.
+- README: the installation instructions now describe the HACS default listing, with a My Home Assistant button that opens the integration directly in HACS.
 
 ## 1.3.0 — 2026-08-29
 
