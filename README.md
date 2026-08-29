@@ -31,7 +31,7 @@ Data is refreshed every 10 minutes.
 
 ## Language
 
-Entity names, the device name/manufacturer/model, and the config flow adapt automatically to your Home Assistant language setting — German, English, French, and Italian are supported, with English as the fallback for any other language.
+Entity names, the device name/manufacturer/model, the config flow, and the texts of the [dashboard strategy](#dashboard) adapt automatically to your Home Assistant language setting — German, English, French, and Italian are supported, with English as the fallback for any other language.
 
 ### Magnitude scale
 
@@ -66,8 +66,86 @@ This is a rough orientation, not a prediction — actual effects depend heavily 
 2. Search for **"Swiss Earthquakes (SED)"**.
 3. Latitude/longitude default to your Home Assistant home location. Set the radius (km), minimum magnitude, and time window (days) to your preference.
 4. Done. Add the integration again for a different location or radius — each instance is independent.
+5. Optional: register the [strategy file](#adding-the-strategy-as-a-resource) as a resource and set up the [dashboard](#dashboard). The integration works fully without it — this only saves you building the map card yourself.
 
-### Showing the earthquakes on a map
+## Dashboard
+
+The integration ships a **dashboard strategy**: a recipe Home Assistant renders in the browser, rather than a dashboard written into your configuration. Nothing is stored, nothing is overwritten, and the result follows your setup — add a second location and its section appears on the next page load; remove one and it is gone. It replaces the "Earthquakes Switzerland" dashboard that versions before 1.3.0 created in your Lovelace storage.
+
+The integration deliberately does not create or modify any dashboard on your behalf — your dashboards stay entirely under your own control.
+
+### Adding the strategy as a resource
+
+The integration serves the strategy file, but registering it as a Lovelace resource is left to you — the resource list is part of your dashboard configuration, and an integration has no business writing into it. It is a one-time step:
+
+**Settings → Dashboards → ⋮ (top right) → Resources → + Add resource**
+
+| Field | Value |
+|---|---|
+| URL | `/sed_earthquakes_files/swiss-earthquakes-dashboard.js` |
+| Resource type | JavaScript module |
+
+The *Resources* entry is only shown when **Advanced mode** is enabled in your user profile (click your name at the bottom of the sidebar). Then reload the page (Ctrl/Cmd+Shift+R).
+
+### Using the strategy
+
+1. **Settings → Dashboards → + Add dashboard → New dashboard from scratch**, give it a name.
+2. Open it, then **✏️ (edit) → ⋮ → Raw configuration editor**.
+3. Replace the entire content with:
+
+```yaml
+strategy:
+  type: custom:swiss-earthquakes
+views: []
+```
+
+4. Save.
+
+You get:
+
+- a **Map** view — every tracked earthquake on a full-screen map, each marker labeled with its magnitude (the same map card the integration used to create for you). The view is there even while no earthquake is in the configured time window;
+- an **Overview** view — one section per configured location: the earthquake count and the time of the latest event as tiles, plus a text card with the latest and the strongest earthquake of the window.
+
+The strategy also appears under **+ Add dashboard** as *Swiss Earthquakes*, which does the same thing without the raw editor.
+
+Everything the strategy produces is a normal Home Assistant dashboard. If you would rather arrange things yourself, [build the map card yourself](#building-the-map-card-yourself) — the strategy is an offer, not a requirement.
+
+### Adjusting the strategy
+
+A strategy dashboard has no card editor — the layout is generated fresh on every load. You still have two ways to shape it without giving that up:
+
+**Options.** Anything you add under `strategy:` is passed to the recipe:
+
+```yaml
+strategy:
+  type: custom:swiss-earthquakes
+  title: My title
+  max_columns: 3
+views: []
+```
+
+| Option | Effect |
+|---|---|
+| `title` | dashboard title |
+| `max_columns` | column count of the generated section views |
+| `map: false` | leave out the full-screen map view |
+
+**One view inside your own dashboard.** Instead of a separate dashboard, let the strategy fill a single view of one you already have. Open your dashboard's raw configuration editor and add a view:
+
+```yaml
+views:
+  - title: Home
+    # ... your own cards ...
+  - title: Swiss Earthquakes
+    strategy:
+      type: custom:swiss-earthquakes
+```
+
+That view is regenerated like the full dashboard is, so new config entries still appear by themselves, while every other view stays yours to edit. The same options work here too.
+
+> **Take control** (⋮ menu) turns a strategy dashboard into a static one you can edit card by card — but it is one-way: the dashboard stops following your config entries from then on. Prefer the two approaches above.
+
+### Building the map card yourself
 
 Every earthquake becomes a `geo_location` entity, so Home Assistant's **built-in Map card** can display them — no custom card and no extra HACS dependency required. The card can label each marker with the event's magnitude out of the box, via its `label_mode: attribute` option.
 
@@ -86,9 +164,7 @@ geo_location_sources:
 default_zoom: 8
 ```
 
-The integration deliberately does not create or modify any dashboard on your behalf — your dashboards stay entirely under your own control.
-
-> **Note:** the earthquake entities are hidden by default so they don't flood Home Assistant's auto-generated overview map. This only affects entities the first time they are registered; the Map card above finds them regardless, because it selects them by source.
+> **Note:** the earthquake entities are hidden by default so they don't flood Home Assistant's auto-generated overview map. This only affects entities the first time they are registered; the Map card above and the strategy's map find them regardless, because they select them by source.
 
 ## Notes
 

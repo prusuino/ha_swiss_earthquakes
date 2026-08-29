@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.1 — 2026-08-29
+
+- **New: a dashboard strategy** replaces the automatic dashboard that 1.3.0 removed without a substitute. A strategy is a recipe Home Assistant renders in the browser: it stores nothing, overwrites nothing, and reflects your current setup on every page load — a second location gets its own section by itself, a removed one disappears with no leftover card. It renders the same full-screen map as before (markers labeled with the magnitude, shown even while no earthquake is in the time window) plus an overview per configured location: the earthquake count and the time of the latest event as tiles, and a text card with the latest and the strongest earthquake. Setup is in the README; in short, a new dashboard with:
+
+  ```yaml
+  strategy:
+    type: custom:swiss-earthquakes
+  views: []
+  ```
+
+  The strategy also appears in the **+ Add dashboard** dialog, honours `title`, `max_columns` and `map: false` under `strategy:`, and can fill a single view of an existing dashboard (`views: - strategy: {type: custom:swiss-earthquakes}`). Its texts follow the Home Assistant language (German, English, French, Italian).
+- **One-time step:** the integration serves the strategy file at `/sed_earthquakes_files/swiss-earthquakes-dashboard.js` but does not register it as a Lovelace resource — the resource list is part of your dashboard configuration, and nothing is written there. Add it once under **Settings → Dashboards → ⋮ → Resources** (type *JavaScript module*); the README has the details. The map card snippet from the README keeps working unchanged, and an existing dashboard needs no adjustment.
+- Changed: the minimum Home Assistant version is now **2025.4.0** (previously 2024.1.0). The file is served through `async_register_static_paths` (added in 2024.7), and the dashboard it builds uses the heading card (2024.10), `grid_options` card sizing (2024.11), the markdown card's `text_only` option (2025.3) and attribute labels on geo-location sources of the map card (2025.4) — older releases render the map, but without the magnitude label on the markers.
+- Added `http` to the integration's dependencies, since it now serves a file.
+
 ## 1.3.0 — 2026-08-29
 
 **Breaking:** the integration no longer creates an "Earthquakes Switzerland" dashboard for you. It wrote directly into Home Assistant's internal Lovelace storage, which could silently discard the entry again and recreated the dashboard even after a user had deliberately deleted it. Dashboards are now left entirely to the user. An existing dashboard from an earlier version is kept and kept working — nothing is deleted on update. The README explains how to add the built-in Map card in three steps; the card configuration is unchanged, so an existing dashboard needs no adjustment.
