@@ -23,5 +23,23 @@
     "abort": {
       "already_configured": "Cette combinaison emplacement/rayon est déjà configurée."
     }
+  },
+  "exceptions": {
+    "certificate": {
+      "message": "Le service du SED sur {host} refuse la connexion parce que son certificat TLS n'est pas valide ({error}). C'est à l'exploitant du service de corriger cela ; Home Assistant continue d'essayer."
+    },
+    "unreachable": {
+      "message": "Le service du SED sur {host} est injoignable ({error}). Home Assistant continue d'essayer."
+    }
+  },
+  "issues": {
+    "certificate": {
+      "title": "Service sismique du SED : certificat TLS non valide",
+      "description": "La connexion à {host} est refusée parce que le certificat TLS du serveur n'est pas valide ({error}). Votre installation n'est pas en cause : le certificat doit être renouvelé par l'exploitant du service (Service Sismologique Suisse, ETH Zurich). Les capteurs et les marqueurs de carte restent indisponibles d'ici là et se rétablissent d'eux-mêmes ; cet avis disparaît à la prochaine actualisation réussie."
+    },
+    "unreachable": {
+      "title": "Service sismique du SED injoignable",
+      "description": "Le service du SED sur {host} n'a pas répondu à plusieurs actualisations successives ({error}). Vérifiez votre connexion Internet ; si elle fonctionne, c'est le service lui-même qui est en panne. Les capteurs et les marqueurs se rétablissent d'eux-mêmes ; cet avis disparaît à la prochaine actualisation réussie."
+    }
   }
 }

@@ -23,5 +23,23 @@
     "abort": {
       "already_configured": "Diese Standort-/Umkreis-Kombination ist bereits konfiguriert."
     }
+  },
+  "exceptions": {
+    "certificate": {
+      "message": "Der SED-Dienst unter {host} lehnt die Verbindung ab, weil sein TLS-Zertifikat ungültig ist ({error}). Das muss der Betreiber des Dienstes beheben; Home Assistant versucht es weiter."
+    },
+    "unreachable": {
+      "message": "Der SED-Dienst unter {host} ist nicht erreichbar ({error}). Home Assistant versucht es weiter."
+    }
+  },
+  "issues": {
+    "certificate": {
+      "title": "SED-Erdbebendienst: ungültiges TLS-Zertifikat",
+      "description": "Die Verbindung zu {host} wird abgelehnt, weil das TLS-Zertifikat des Servers ungültig ist ({error}). An deiner Installation ist nichts falsch: Das Zertifikat muss der Betreiber erneuern (Schweizerischer Erdbebendienst, ETH Zürich). Die Erdbeben-Sensoren und Kartenmarker bleiben bis dahin nicht verfügbar und erholen sich von selbst; dieser Hinweis verschwindet mit der nächsten erfolgreichen Aktualisierung."
+    },
+    "unreachable": {
+      "title": "SED-Erdbebendienst nicht erreichbar",
+      "description": "Der SED-Dienst unter {host} hat mehrere Aktualisierungen in Folge nicht beantwortet ({error}). Prüfe deine Internetverbindung; ist sie in Ordnung, ist der Dienst selbst gestört. Sensoren und Marker erholen sich von selbst; dieser Hinweis verschwindet mit der nächsten erfolgreichen Aktualisierung."
+    }
   }
 }

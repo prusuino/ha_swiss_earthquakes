@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.1 — 2026-10-25
+
+- **New: a clear message when the SED service itself is broken.** When the FDSN service rejects the connection because of an invalid TLS certificate (as happened on 2026-10-25, when the certificate of eida.ethz.ch had expired), the integration now says so: the entry's setup error reads *rejected the connection because its TLS certificate is invalid (certificate has expired)* instead of a bare connection error, and a **repair issue** explains that nothing is wrong with your installation, that the operator has to renew the certificate and that the sensors recover on their own. A service that does not answer at all for three refreshes in a row raises a similar notice. Both disappear with the next successful refresh. In all four languages.
+- The integration still refuses to fall back to an unencrypted connection: the request carries your coordinates, and a silent downgrade to HTTP would expose them.
+
 ## 1.5.0 — 2026-08-29
 
 - **Changed: the sensors' suggested entity ids carry a short tag of the config entry** — the last four characters of the entry id, lower-cased, after the radius: `sensor.sed_earthquakes_count_150km_7f3a`, `sensor.sed_earthquakes_latest_150km_7f3a`, `sensor.sed_earthquakes_latest_summary_150km_7f3a`. The radius alone did not tell two entries apart: a second entry at another location with the same radius (a home and a holiday location, say) suggested the very same ids, which Home Assistant resolved by appending `_2` to whichever entry loaded second, so an automation copied between the entries silently targeted the wrong one. A suggested id only applies when an entity is first created, so **the sensors of existing entries keep the ids they have** — unique ids are unchanged, nothing is renamed, and there is nothing to do on upgrade. The README entity table shows the pattern.

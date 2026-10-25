@@ -8,11 +8,15 @@ from __future__ import annotations
 
 import logging
 import math
+import re
+import ssl
 from datetime import timedelta
+from urllib.parse import urlsplit
 
 import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
@@ -33,6 +37,29 @@ from .localization import t
 _LOGGER = logging.getLogger(__name__)
 
 
+FDSN_HOST = urlsplit(FDSN_URL).hostname or FDSN_URL
+
+# Consecutive failed refreshes before a plain connection problem becomes a
+# repair issue. A certificate problem is reported at once: it never goes
+# away by itself and the user cannot do anything but wait for the operator.
+UNREACHABLE_ISSUE_AFTER = 3
+
+
+def classify_error(err: BaseException) -> str:
+    """'certificate' | 'timeout' | 'http' | 'connection' for a transport error."""
+    if isinstance(err, aiohttp.ClientSSLError):
+        return "certificate"
+    if isinstance(err, aiohttp.ClientConnectorError) and isinstance(
+        getattr(err, "os_error", None), ssl.SSLError
+    ):
+        return "certificate"
+    if isinstance(err, TimeoutError):
+        return "timeout"
+    if isinstance(err, aiohttp.ClientResponseError):
+        return "http"
+    return "connection"
+
+
 def describe_error(err: BaseException) -> str:
     """One-line description of a failed request for a log message or an
     UpdateFailed. Deliberately not str(err): aiohttp's ClientResponseError
@@ -42,6 +69,15 @@ def describe_error(err: BaseException) -> str:
         return f"HTTP {err.status} {err.message or ''}".rstrip()
     if isinstance(err, TimeoutError):
         return "timeout"
+    if isinstance(err, aiohttp.ClientConnectorCertificateError):
+        # e.g. "certificate verify failed: certificate has expired"
+        reason = str(err.certificate_error)
+        reason = re.sub(r"^\[SSL[^\]]*\]\s*", "", reason)
+        reason = re.sub(r"\s*\(_ssl\.c:\d+\)$", "", reason)
+        return reason or "certificate error"
+    if isinstance(err, aiohttp.ClientConnectorError):
+        # str() would include host and port only, no URL; keep the OS reason.
+        return f"{type(err).__name__}: {err.os_error}" if err.os_error else type(err).__name__
     return f"{type(err).__name__}: {err}"
 
 
@@ -139,6 +175,35 @@ class SedEarthquakesCoordinator(DataUpdateCoordinator[dict]):
             update_interval=timedelta(minutes=UPDATE_INTERVAL_MINUTES),
         )
         self._entry = entry
+        self._failures = 0
+
+    @property
+    def _issue_id(self) -> str:
+        return f"unreachable_{self._entry.entry_id}"
+
+    def _report(self, kind: str, detail: str) -> None:
+        """Raise a repair issue for a certificate problem at once, for other
+        transport failures after a few refreshes in a row (one network hiccup
+        is not worth a notice). The issue text names the host and the reason
+        so the user can tell a broken service from a broken home network."""
+        self._failures += 1
+        if kind != "certificate" and self._failures < UNREACHABLE_ISSUE_AFTER:
+            return
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            self._issue_id,
+            is_fixable=False,
+            is_persistent=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="certificate" if kind == "certificate" else "unreachable",
+            translation_placeholders={"host": FDSN_HOST, "error": detail},
+        )
+
+    def _recovered(self) -> None:
+        if self._failures:
+            self._failures = 0
+            ir.async_delete_issue(self.hass, DOMAIN, self._issue_id)
 
     async def _async_update_data(self) -> dict:
         data = self._entry.data
@@ -156,7 +221,13 @@ class SedEarthquakesCoordinator(DataUpdateCoordinator[dict]):
             # without the request URL (see describe_error). Anything else
             # is a programming error and propagates with its traceback
             # instead of being disguised as a connection problem.
+            kind, detail = classify_error(err), describe_error(err)
+            self._report(kind, detail)
             raise UpdateFailed(
-                f"SED earthquake data unreachable: {describe_error(err)}"
+                f"SED earthquake data unreachable: {detail}",
+                translation_domain=DOMAIN,
+                translation_key="certificate" if kind == "certificate" else "unreachable",
+                translation_placeholders={"host": FDSN_HOST, "error": detail},
             ) from err
+        self._recovered()
         return {"quakes": quakes, "count": len(quakes)}

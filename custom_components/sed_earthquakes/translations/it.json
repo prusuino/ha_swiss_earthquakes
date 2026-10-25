@@ -23,5 +23,23 @@
     "abort": {
       "already_configured": "Questa combinazione posizione/raggio è già configurata."
     }
+  },
+  "exceptions": {
+    "certificate": {
+      "message": "Il servizio del SED su {host} rifiuta la connessione perché il suo certificato TLS non è valido ({error}). Deve risolverlo il gestore del servizio; Home Assistant continua a riprovare."
+    },
+    "unreachable": {
+      "message": "Il servizio del SED su {host} non è raggiungibile ({error}). Home Assistant continua a riprovare."
+    }
+  },
+  "issues": {
+    "certificate": {
+      "title": "Servizio sismico del SED: certificato TLS non valido",
+      "description": "La connessione a {host} viene rifiutata perché il certificato TLS del server non è valido ({error}). La tua installazione non ha problemi: il certificato deve essere rinnovato dal gestore del servizio (Servizio Sismico Svizzero, ETH Zurigo). I sensori e i marcatori sulla mappa restano non disponibili fino ad allora e si ripristinano da soli; questo avviso scompare al prossimo aggiornamento riuscito."
+    },
+    "unreachable": {
+      "title": "Servizio sismico del SED non raggiungibile",
+      "description": "Il servizio del SED su {host} non ha risposto a diversi aggiornamenti consecutivi ({error}). Controlla la connessione Internet; se funziona, è il servizio stesso a essere fuori uso. Sensori e marcatori si ripristinano da soli; questo avviso scompare al prossimo aggiornamento riuscito."
+    }
   }
 }

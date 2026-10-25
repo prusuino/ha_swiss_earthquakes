@@ -23,5 +23,23 @@
     "abort": {
       "already_configured": "This location/radius combination is already configured."
     }
+  },
+  "exceptions": {
+    "certificate": {
+      "message": "The SED service at {host} rejected the connection because its TLS certificate is invalid ({error}). This has to be fixed by the service operator; Home Assistant keeps retrying."
+    },
+    "unreachable": {
+      "message": "The SED service at {host} could not be reached ({error}). Home Assistant keeps retrying."
+    }
+  },
+  "issues": {
+    "certificate": {
+      "title": "SED earthquake service: invalid TLS certificate",
+      "description": "The connection to {host} is rejected because the server's TLS certificate is invalid ({error}). Nothing is wrong with your installation: the certificate has to be renewed by the service operator (Swiss Seismological Service, ETH Zurich). The earthquake sensors and map markers stay unavailable until then and recover on their own; this notice disappears with the next successful refresh."
+    },
+    "unreachable": {
+      "title": "SED earthquake service unreachable",
+      "description": "The SED service at {host} has not answered for several refreshes in a row ({error}). Check your internet connection; if it is fine, the service itself is down. Sensors and markers recover on their own; this notice disappears with the next successful refresh."
+    }
   }
 }
