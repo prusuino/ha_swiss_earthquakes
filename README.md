@@ -1,6 +1,6 @@
 # Swiss Earthquakes (SED)
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+[![marketplace_badge](https://img.shields.io/badge/Marketplace-Default-41BDF5.svg)](https://hacs.xyz/docs/marketplace/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <a href="https://www.buymeacoffee.com/prusuino"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="20"></a>
 
@@ -79,15 +79,15 @@ This is a rough orientation, not a prediction — actual effects depend heavily 
 
 ## Installation
 
-### HACS (recommended)
+### Home Assistant Marketplace (recommended)
 
-1. Open **HACS**, search for **"Swiss Earthquakes"** and download it — or use the button, which opens the integration directly in your HACS:
+1. Open **Settings → Marketplace** (Home Assistant 2026.11 or newer; on older versions open **HACS**), search for **"Swiss Earthquakes"** and download it — or use the button, which opens the integration directly in your Marketplace:
 
-   [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=prusuino&repository=ha_swiss_earthquakes&category=integration)
+   [![Open in Marketplace](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=prusuino&repository=ha_swiss_earthquakes&category=integration)
 
 2. Restart Home Assistant.
 
-The integration is listed in the HACS default store, so no custom repository is needed.
+The integration is listed in the Marketplace default catalog (formerly the HACS default store), so no custom repository is needed.
 
 ### Manual
 
@@ -182,7 +182,7 @@ That view is regenerated like the full dashboard is, so new config entries still
 
 ### Building the map card yourself
 
-Every earthquake becomes a `geo_location` entity, so Home Assistant's **built-in Map card** can display them — no custom card and no extra HACS dependency required. The card can label each marker with the event's magnitude out of the box, via its `label_mode: attribute` option.
+Every earthquake becomes a `geo_location` entity, so Home Assistant's **built-in Map card** can display them — no custom card and no extra Marketplace download required. The card can label each marker with the event's magnitude out of the box, via its `label_mode: attribute` option.
 
 To set this up:
 
