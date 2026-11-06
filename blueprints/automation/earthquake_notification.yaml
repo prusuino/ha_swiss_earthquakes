@@ -66,10 +66,10 @@ variables:
   place: "{{ trigger.to_state.attributes.place }}"
   depth_km: "{{ trigger.to_state.attributes.depth_km }}"
   distance_km: "{{ trigger.to_state.attributes.distance_km }}"
-  when: "{{ trigger.to_state.state | as_datetime | as_local }}"
+  when: "{{ trigger.to_state.state | as_timestamp(0) | timestamp_custom('%H:%M') }}"
   message: >-
     Earthquake M {{ magnitude }} near {{ place }}, {{ distance_km }} km away,
-    depth {{ depth_km }} km, at {{ when.strftime('%H:%M') if when else '?' }}.
+    depth {{ depth_km }} km, at {{ when }}.
 
 conditions:
   # A new event, not an attribute refresh of the same one, and strong enough.

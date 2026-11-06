@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.2 — 2026-11-06
+
+- **Fixed: the blueprint *notify on an earthquake* never sent a notification.** It stopped with a template error on every earthquake. Re-import the blueprint to get the fix (Settings → Automations & scenes → Blueprints → the blueprint's menu → Re-import).
+
 ## 1.7.1 — 2026-11-06
 
 - **Fixed: the diagnostics download could contain private values.** The entry's unique id went out unredacted: depending on the integration it holds the coordinates of the entry or, for a VKF entry of Swiss Hail Protection, the device serial. The text of the last error could also repeat a request URL. The unique id, the entry title and the entry's name and location fields are now redacted, and only the type of the last error is reported. If you have shared a diagnostics file from the previous version, consider it exposed.
