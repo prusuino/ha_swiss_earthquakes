@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0 — 2026-11-06
+
+- **New: diagnostics download.** The entry menu under **Settings → Devices & services** offers *Download diagnostics*: the entry's configuration, what was last fetched and the current state of its entities, with coordinates, credentials and other personal values redacted and long lists cut. Attach it to an issue report.
+
 ## 1.6.0 — 2026-11-06
 
 - **New: a trigger in the automation editor** (Home Assistant 2026.10 or newer). *Earthquake detected* fires when the latest-earthquake sensor of a location changes, optionally only from a minimum magnitude; it targets the integration's own sensors, with the usual *for* and behaviour options, in all four languages. On older versions the entry is simply not offered.
