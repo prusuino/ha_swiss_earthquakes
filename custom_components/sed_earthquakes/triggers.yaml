@@ -1,0 +1,28 @@
+earthquake_detected:
+  fields:
+    behavior:
+      required: true
+      default: each
+      selector:
+        automation_behavior:
+          mode: trigger
+    for:
+      required: true
+      default: 00:00:00
+      selector:
+        duration:
+    minimum_magnitude:
+      required: false
+      default: 0
+      example: 2.5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          mode: box
+  target:
+    entity:
+      - integration: sed_earthquakes
+        domain: sensor
+        device_class: timestamp

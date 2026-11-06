@@ -41,5 +41,22 @@
       "title": "Service sismique du SED injoignable",
       "description": "Le service du SED sur {host} n'a pas répondu à plusieurs actualisations successives ({error}). Vérifiez votre connexion Internet ; si elle fonctionne, c'est le service lui-même qui est en panne. Les capteurs et les marqueurs se rétablissent d'eux-mêmes ; cet avis disparaît à la prochaine actualisation réussie."
     }
+  },
+  "triggers": {
+    "earthquake_detected": {
+      "name": "Séisme détecté",
+      "description": "Se déclenche quand le Service Sismologique Suisse enregistre un nouveau séisme dans le rayon d'un lieu – au choix seulement à partir d'une magnitude minimale.",
+      "fields": {
+        "behavior": {
+          "name": "Déclencher quand"
+        },
+        "for": {
+          "name": "Pendant au moins"
+        },
+        "minimum_magnitude": {
+          "name": "Magnitude minimale"
+        }
+      }
+    }
   }
 }

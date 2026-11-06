@@ -201,6 +201,31 @@ default_zoom: 8
 
 > **Note:** the earthquake entities are hidden by default so they don't flood Home Assistant's auto-generated overview map. This only affects entities the first time they are registered; the Map card above and the strategy's map find them regardless, because they select them by source.
 
+## Automations
+
+### Blueprint: notify on an earthquake
+
+The repository ships a blueprint that sends a notification to your phone when a new earthquake is recorded within the radius of one of your locations and reaches a minimum magnitude you choose: place, magnitude, depth, distance and time. Import it once, then create an automation from it:
+
+[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fprusuino%2Fha_swiss_earthquakes%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fearthquake_notification.yaml)
+
+An action field takes your own steps; the text is available there as `{{ message }}`.
+
+### Trigger in the automation editor
+
+On Home Assistant 2026.10 or newer the integration adds **Earthquake detected** to the automation editor's trigger list: it fires when the latest-earthquake sensor of a location changes, optionally only from a **minimum magnitude**. It targets the integration's own sensors (pick an entity, the location's device or an area); the usual *for* duration and behaviour options apply.
+
+```yaml
+triggers:
+  - trigger: sed_earthquakes.earthquake_detected
+    target:
+      entity_id: sensor.sed_earthquakes_latest_150km_7f3a
+    options:
+      minimum_magnitude: 3
+```
+
+Without the trigger platform, a state trigger on the latest-earthquake sensor does the same (it is a timestamp, so two quakes of the same size at the same place are still told apart); the magnitude is in its attributes.
+
 ## Notes
 
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.

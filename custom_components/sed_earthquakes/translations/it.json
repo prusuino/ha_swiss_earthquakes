@@ -41,5 +41,22 @@
       "title": "Servizio sismico del SED non raggiungibile",
       "description": "Il servizio del SED su {host} non ha risposto a diversi aggiornamenti consecutivi ({error}). Controlla la connessione Internet; se funziona, è il servizio stesso a essere fuori uso. Sensori e marcatori si ripristinano da soli; questo avviso scompare al prossimo aggiornamento riuscito."
     }
+  },
+  "triggers": {
+    "earthquake_detected": {
+      "name": "Terremoto rilevato",
+      "description": "Si attiva quando il Servizio Sismico Svizzero registra un nuovo terremoto nel raggio di una località – a scelta solo a partire da una magnitudo minima.",
+      "fields": {
+        "behavior": {
+          "name": "Attiva quando"
+        },
+        "for": {
+          "name": "Per almeno"
+        },
+        "minimum_magnitude": {
+          "name": "Magnitudo minima"
+        }
+      }
+    }
   }
 }

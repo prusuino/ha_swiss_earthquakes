@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 — 2026-11-06
+
+- **New: a trigger in the automation editor** (Home Assistant 2026.10 or newer). *Earthquake detected* fires when the latest-earthquake sensor of a location changes, optionally only from a minimum magnitude; it targets the integration's own sensors, with the usual *for* and behaviour options, in all four languages. On older versions the entry is simply not offered.
+- **New: a blueprint, *notify on an earthquake*.** One-click import from the README: picks the latest-earthquake sensors of your locations, a minimum magnitude and your phone, and sends place, magnitude, depth, distance and time; an action field takes your own steps with the text as `{{ message }}`.
+
 ## 1.5.1 — 2026-10-25
 
 - **New: a clear message when the SED service itself is broken.** When the FDSN service rejects the connection because of an invalid TLS certificate (as happened on 2026-10-25, when the certificate of eida.ethz.ch had expired), the integration now says so: the entry's setup error reads *rejected the connection because its TLS certificate is invalid (certificate has expired)* instead of a bare connection error, and a **repair issue** explains that nothing is wrong with your installation, that the operator has to renew the certificate and that the sensors recover on their own. A service that does not answer at all for three refreshes in a row raises a similar notice. Both disappear with the next successful refresh. In all four languages.

@@ -41,5 +41,22 @@
       "title": "SED earthquake service unreachable",
       "description": "The SED service at {host} has not answered for several refreshes in a row ({error}). Check your internet connection; if it is fine, the service itself is down. Sensors and markers recover on their own; this notice disappears with the next successful refresh."
     }
+  },
+  "triggers": {
+    "earthquake_detected": {
+      "name": "Earthquake detected",
+      "description": "Triggers when the Swiss Seismological Service records a new earthquake within the radius of a location — optionally only from a minimum magnitude.",
+      "fields": {
+        "behavior": {
+          "name": "Trigger when"
+        },
+        "for": {
+          "name": "For at least"
+        },
+        "minimum_magnitude": {
+          "name": "Minimum magnitude"
+        }
+      }
+    }
   }
 }

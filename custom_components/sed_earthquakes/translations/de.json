@@ -41,5 +41,22 @@
       "title": "SED-Erdbebendienst nicht erreichbar",
       "description": "Der SED-Dienst unter {host} hat mehrere Aktualisierungen in Folge nicht beantwortet ({error}). Prüfe deine Internetverbindung; ist sie in Ordnung, ist der Dienst selbst gestört. Sensoren und Marker erholen sich von selbst; dieser Hinweis verschwindet mit der nächsten erfolgreichen Aktualisierung."
     }
+  },
+  "triggers": {
+    "earthquake_detected": {
+      "name": "Erdbeben erkannt",
+      "description": "Löst aus, wenn der Schweizerische Erdbebendienst ein neues Erdbeben im Umkreis eines Standorts registriert – wahlweise erst ab einer Mindestmagnitude.",
+      "fields": {
+        "behavior": {
+          "name": "Auslösen wenn"
+        },
+        "for": {
+          "name": "Mindestens für"
+        },
+        "minimum_magnitude": {
+          "name": "Mindestmagnitude"
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,7 @@
+{
+  "triggers": {
+    "earthquake_detected": {
+      "trigger": "mdi:vibrate"
+    }
+  }
+}
