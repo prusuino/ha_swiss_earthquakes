@@ -77,7 +77,9 @@ rules:
   exception-translations: todo
   icon-translations: done
   reconfiguration-flow: done
-  repair-issues: todo
+  repair-issues:
+    status: done
+    comment: An unreachable or certificate-broken SED service raises a notice under Settings > Repairs.
   stale-devices:
     status: exempt
     comment: One device per entry.

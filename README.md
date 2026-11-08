@@ -254,6 +254,7 @@ The integration declares **Bronze** on the [Home Assistant integration quality s
 
 ## Notes
 
+- **Repairs.** When the SED service has not answered for three refreshes in a row, or rejects the connection because of an invalid TLS certificate, a notice appears under **Settings → Repairs** naming the host and the reason; it disappears on its own with the next successful refresh.
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.
 - This integration is unofficial and not affiliated with, endorsed by, or supported by the SED or ETH Zurich. It only reads their published data via the standard FDSN protocol.
 - Each refresh asks the SED service for at most 200 events, newest first. With a large radius, a low minimum magnitude and a long time window, a busy period (an earthquake swarm, say) can exceed that: the oldest events of the window are then left out — the count sensor stops at 200 and the oldest markers disappear early. Raise the minimum magnitude or shorten the window if that matters to you.

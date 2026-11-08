@@ -2,7 +2,7 @@
 
 ## 1.9.0 — 2026-11-09
 
-- **Quality scale Bronze.** The integration keeps its coordinator in the config entry's runtime data, the README gained removal instructions and a quality-scale section, and the manifest declares the **bronze** tier. A test suite (FDSN parser, error descriptions, range checks, config flow with setup, duplicate, unreachable service and reconfigure) runs on every push. No change to entities or configuration.
+- **Quality scale Bronze.** The integration keeps its coordinator in the config entry's runtime data, the README gained removal instructions and a quality-scale section, and the manifest declares the **bronze** tier. A test suite (FDSN parser, error descriptions, range checks, repair notices, config flow with setup, duplicate, unreachable service and reconfigure) runs on every push. The README now describes the repair notices, and a removed entry takes its notice with it. No change to entities or configuration.
 
 ## 1.8.0 — 2026-11-08
 

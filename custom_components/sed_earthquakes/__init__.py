@@ -5,6 +5,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 
 from .const import DOMAIN
 from .coordinator import SedEarthquakesCoordinator
@@ -33,4 +34,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: SedEarthquakesConfigEntr
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SedEarthquakesConfigEntry) -> bool:
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        # A notice about the service belongs to the entry that polls it.
+        ir.async_delete_issue(hass, DOMAIN, f"unreachable_{entry.entry_id}")
+    return unloaded
