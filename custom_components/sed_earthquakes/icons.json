@@ -3,5 +3,10 @@
     "earthquake_detected": {
       "trigger": "mdi:vibrate"
     }
+  },
+  "conditions": {
+    "recent_earthquake": {
+      "condition": "mdi:vibrate"
+    }
   }
 }

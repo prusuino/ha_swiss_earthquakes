@@ -70,5 +70,25 @@
         }
       }
     }
+  },
+  "conditions": {
+    "recent_earthquake": {
+      "name": "Kürzliches Erdbeben",
+      "description": "Erfüllt, solange das neueste Erdbeben eines Standorts innerhalb der letzten Stunden liegt und die Mindestmagnitude erreicht.",
+      "fields": {
+        "behavior": {
+          "name": "Bedingung erfüllt wenn"
+        },
+        "for": {
+          "name": "Mindestens für"
+        },
+        "hours": {
+          "name": "Innerhalb der letzten (Stunden)"
+        },
+        "minimum_magnitude": {
+          "name": "Mindestmagnitude"
+        }
+      }
+    }
   }
 }

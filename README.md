@@ -228,6 +228,20 @@ triggers:
 
 Without the trigger platform, a state trigger on the latest-earthquake sensor does the same (it is a timestamp, so two quakes of the same size at the same place are still told apart); the magnitude is in its attributes.
 
+### Condition in the automation editor
+
+On Home Assistant 2026.11 or newer the integration adds **Recent earthquake** to the condition list: it passes while the newest earthquake of a location happened within the last **hours** (default 24) and reaches the **minimum magnitude**. It targets the latest-earthquake sensors.
+
+```yaml
+conditions:
+  - condition: sed_earthquakes.recent_earthquake
+    target:
+      entity_id: sensor.sed_earthquakes_latest_150km_7f3a
+    options:
+      hours: 6
+      minimum_magnitude: 2.5
+```
+
 ## Notes
 
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.

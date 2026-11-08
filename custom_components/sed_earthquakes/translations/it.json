@@ -70,5 +70,25 @@
         }
       }
     }
+  },
+  "conditions": {
+    "recent_earthquake": {
+      "name": "Terremoto recente",
+      "description": "Soddisfatta finché il terremoto più recente di una località è avvenuto nelle ultime ore e raggiunge la magnitudo minima.",
+      "fields": {
+        "behavior": {
+          "name": "Condizione soddisfatta se"
+        },
+        "for": {
+          "name": "Per almeno"
+        },
+        "hours": {
+          "name": "Nelle ultime (ore)"
+        },
+        "minimum_magnitude": {
+          "name": "Magnitudo minima"
+        }
+      }
+    }
   }
 }

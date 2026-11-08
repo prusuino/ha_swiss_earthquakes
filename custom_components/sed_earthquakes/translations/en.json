@@ -70,5 +70,25 @@
         }
       }
     }
+  },
+  "conditions": {
+    "recent_earthquake": {
+      "name": "Recent earthquake",
+      "description": "Passes while the newest earthquake of a location happened within the last hours and reaches the minimum magnitude.",
+      "fields": {
+        "behavior": {
+          "name": "Condition passes when"
+        },
+        "for": {
+          "name": "For at least"
+        },
+        "hours": {
+          "name": "Within the last (hours)"
+        },
+        "minimum_magnitude": {
+          "name": "Minimum magnitude"
+        }
+      }
+    }
   }
 }

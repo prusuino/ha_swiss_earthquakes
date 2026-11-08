@@ -70,5 +70,25 @@
         }
       }
     }
+  },
+  "conditions": {
+    "recent_earthquake": {
+      "name": "Séisme récent",
+      "description": "Remplie tant que le séisme le plus récent d'un lieu a eu lieu au cours des dernières heures et atteint la magnitude minimale.",
+      "fields": {
+        "behavior": {
+          "name": "Condition remplie si"
+        },
+        "for": {
+          "name": "Pendant au moins"
+        },
+        "hours": {
+          "name": "Au cours des dernières (heures)"
+        },
+        "minimum_magnitude": {
+          "name": "Magnitude minimale"
+        }
+      }
+    }
   }
 }
