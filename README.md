@@ -242,6 +242,16 @@ conditions:
       minimum_magnitude: 2.5
 ```
 
+## Removal
+
+1. **Settings → Devices & services → Swiss Earthquakes (SED)**, open the entry's menu (⋮) and choose **Delete**; repeat for every location. The entities, their history, the map markers and the device go with the entry.
+2. If you registered the strategy file as a dashboard resource, remove it under **Settings → Dashboards → Resources** and delete the dashboard built from it.
+3. Remove the integration itself in the **Marketplace** (or HACS), then restart Home Assistant. With a manual installation, delete `custom_components/sed_earthquakes` instead.
+
+## Quality scale
+
+The integration declares **Bronze** on the [Home Assistant integration quality scale](https://developers.home-assistant.io/docs/core/integration-quality-scale/): a config flow with tests, unique ids for every entity, brand images, installation and removal instructions, a connection check before an entry is created, no duplicate entries, runtime data on the config entry, and the other Bronze rules. The tier is self-assessed, as it is for every custom integration; the per-rule status, including what is still open for Silver and Gold, is in `custom_components/sed_earthquakes/quality_scale.yaml`.
+
 ## Notes
 
 - Switzerland has continuous low-level background seismicity — with the default settings (150 km, magnitude ≥ 0, 30 days) you'll typically see dozens of entities, mostly very small (M<1) events. Raise the minimum magnitude if you only want noticeable events.

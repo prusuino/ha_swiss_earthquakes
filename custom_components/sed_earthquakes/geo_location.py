@@ -163,7 +163,7 @@ def _async_remove_marker(
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: SedEarthquakesCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: SedEarthquakesCoordinator = entry.runtime_data
     registry = er.async_get(hass)
     known_entities: dict[str, SedEarthquakeEvent] = {}
 

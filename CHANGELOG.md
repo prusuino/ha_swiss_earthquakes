@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0 — 2026-11-09
+
+- **Quality scale Bronze.** The integration keeps its coordinator in the config entry's runtime data, the README gained removal instructions and a quality-scale section, and the manifest declares the **bronze** tier. A test suite (FDSN parser, error descriptions, range checks, config flow with setup, duplicate, unreachable service and reconfigure) runs on every push. No change to entities or configuration.
+
 ## 1.8.0 — 2026-11-08
 
 - **New: reconfigure an entry in place.** The entry's menu under **Settings → Devices & services** now offers *Reconfigure*: change the location, the radius, the minimum magnitude or the time window without deleting the entry. The sensors and map markers keep their ids and history, the device name and the entry title follow the new radius, and markers of earthquakes outside the new radius or window disappear with the reload. The form checks the values and queries the SED service once, as the setup form does, and refuses a change that would duplicate another entry. Suggested entity ids carry the radius from the time the entity was created (`sensor.sed_earthquakes_count_150km_7f3a`); they are not renamed, rename them yourself if you care.

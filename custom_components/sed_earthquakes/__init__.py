@@ -8,6 +8,8 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .coordinator import SedEarthquakesCoordinator
+
+type SedEarthquakesConfigEntry = ConfigEntry[SedEarthquakesCoordinator]
 from .frontend import async_serve_frontend
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "geo_location"]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: SedEarthquakesConfigEntry) -> bool:
     try:
         await async_serve_frontend(hass)
     except Exception:  # noqa: BLE001 - serving the strategy file must never block integration setup
@@ -24,14 +26,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = SedEarthquakesCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unloaded:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unloaded
+async def async_unload_entry(hass: HomeAssistant, entry: SedEarthquakesConfigEntry) -> bool:
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

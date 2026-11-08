@@ -19,7 +19,7 @@ ATTRIBUTION = "Data: Swiss Seismological Service SED, ETH Zurich"
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: SedEarthquakesCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: SedEarthquakesCoordinator = entry.runtime_data
     async_add_entities(
         [
             SedEarthquakeCountSensor(hass, coordinator, entry),
