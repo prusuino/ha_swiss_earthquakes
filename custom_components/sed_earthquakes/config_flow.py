@@ -1,14 +1,21 @@
-"""Config flow for the Swiss Earthquakes (SED) integration."""
+"""Config flow for the Swiss Earthquakes (SED) integration.
+
+Setup: location + radius + minimum magnitude + time window. Reconfigure
+(the entry's menu under Settings → Devices & services) changes the same
+values in place: the entry keeps its id, so its entities keep their ids
+and history; the device name, the entry title and the map follow the new
+values after the reload.
+"""
 from __future__ import annotations
 
 import logging
 import math
+from collections.abc import Mapping
 from typing import Any
 
 import aiohttp
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow
-from homeassistant.data_entry_flow import FlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
 
 from .const import (
     CONF_DAYS,
@@ -46,66 +53,145 @@ def validate_input(user_input: dict[str, Any]) -> dict[str, str]:
     return errors
 
 
+def _unique_id(lat: float, lon: float, radius: float) -> str:
+    return f"{round(lat, 2)}_{round(lon, 2)}_{radius}"
+
+
+def _entry_data(user_input: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        CONF_LATITUDE: user_input[CONF_LATITUDE],
+        CONF_LONGITUDE: user_input[CONF_LONGITUDE],
+        CONF_RADIUS_KM: user_input[CONF_RADIUS_KM],
+        CONF_MIN_MAGNITUDE: user_input[CONF_MIN_MAGNITUDE],
+        CONF_DAYS: user_input[CONF_DAYS],
+    }
+
+
+def _schema(defaults: Mapping[str, Any]) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Required(CONF_LATITUDE, default=defaults[CONF_LATITUDE]): vol.Coerce(float),
+            vol.Required(CONF_LONGITUDE, default=defaults[CONF_LONGITUDE]): vol.Coerce(float),
+            vol.Required(CONF_RADIUS_KM, default=defaults[CONF_RADIUS_KM]): vol.Coerce(float),
+            vol.Required(CONF_MIN_MAGNITUDE, default=defaults[CONF_MIN_MAGNITUDE]): vol.Coerce(
+                float
+            ),
+            vol.Required(CONF_DAYS, default=defaults[CONF_DAYS]): vol.Coerce(int),
+        }
+    )
+
+
 class SedEarthquakesConfigFlow(ConfigFlow, domain=DOMAIN):
     """Config flow: location + radius + minimum magnitude + time window."""
 
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def _async_validate(self, user_input: dict[str, Any]) -> dict[str, str]:
+        """Range checks, then one query with the entered values, so an
+        unreachable service shows up in the form instead of as a failed
+        setup afterwards."""
+        errors = validate_input(user_input)
+        if errors:
+            return errors
+        try:
+            await async_fetch_quakes(
+                self.hass,
+                user_input[CONF_LATITUDE],
+                user_input[CONF_LONGITUDE],
+                user_input[CONF_RADIUS_KM],
+                user_input[CONF_MIN_MAGNITUDE],
+                user_input[CONF_DAYS],
+            )
+        except (aiohttp.ClientError, TimeoutError) as err:
+            _LOGGER.warning("Connection test to the SED service failed: %s", describe_error(err))
+            errors["base"] = "cannot_connect"
+        return errors
+
+    def _title(self, user_input: Mapping[str, Any]) -> str:
+        return t("device_name", self.hass, radius=display_radius(user_input[CONF_RADIUS_KM]))
+
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            lat = user_input[CONF_LATITUDE]
-            lon = user_input[CONF_LONGITUDE]
-            radius = user_input[CONF_RADIUS_KM]
             errors = validate_input(user_input)
             if not errors:
-                unique_id = f"{round(lat, 2)}_{round(lon, 2)}_{radius}"
-                await self.async_set_unique_id(unique_id)
+                await self.async_set_unique_id(
+                    _unique_id(
+                        user_input[CONF_LATITUDE],
+                        user_input[CONF_LONGITUDE],
+                        user_input[CONF_RADIUS_KM],
+                    )
+                )
                 self._abort_if_unique_id_configured()
-
-                # One query with the entered values, so an unreachable service
-                # shows up in the form instead of as a failed setup afterwards.
-                try:
-                    await async_fetch_quakes(
-                        self.hass,
-                        lat,
-                        lon,
-                        radius,
-                        user_input[CONF_MIN_MAGNITUDE],
-                        user_input[CONF_DAYS],
-                    )
-                except (aiohttp.ClientError, TimeoutError) as err:
-                    _LOGGER.warning(
-                        "Connection test to the SED service failed: %s", describe_error(err)
-                    )
-                    errors["base"] = "cannot_connect"
+                errors = await self._async_validate(user_input)
 
             if not errors:
                 return self.async_create_entry(
-                    title=t("device_name", self.hass, radius=display_radius(radius)),
-                    data={
-                        CONF_LATITUDE: lat,
-                        CONF_LONGITUDE: lon,
-                        CONF_RADIUS_KM: radius,
-                        CONF_MIN_MAGNITUDE: user_input[CONF_MIN_MAGNITUDE],
-                        CONF_DAYS: user_input[CONF_DAYS],
-                    },
+                    title=self._title(user_input), data=_entry_data(user_input)
                 )
 
-        default_lat = self.hass.config.latitude
-        default_lon = self.hass.config.longitude
-
-        schema = vol.Schema(
+        schema = _schema(
             {
-                vol.Required(CONF_LATITUDE, default=default_lat): vol.Coerce(float),
-                vol.Required(CONF_LONGITUDE, default=default_lon): vol.Coerce(float),
-                vol.Required(CONF_RADIUS_KM, default=DEFAULT_RADIUS_KM): vol.Coerce(float),
-                vol.Required(CONF_MIN_MAGNITUDE, default=DEFAULT_MIN_MAGNITUDE): vol.Coerce(float),
-                vol.Required(CONF_DAYS, default=DEFAULT_DAYS): vol.Coerce(int),
+                CONF_LATITUDE: self.hass.config.latitude,
+                CONF_LONGITUDE: self.hass.config.longitude,
+                CONF_RADIUS_KM: DEFAULT_RADIUS_KM,
+                CONF_MIN_MAGNITUDE: DEFAULT_MIN_MAGNITUDE,
+                CONF_DAYS: DEFAULT_DAYS,
             }
         )
         if user_input is not None:
             # Show the rejected values again instead of the defaults.
             schema = self.add_suggested_values_to_schema(schema, user_input)
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Change location, radius, magnitude or time window of an existing entry.
+
+        The unique id encodes location and radius; a change that would
+        collide with another entry is refused, a change that only moves this
+        entry updates its unique id. Markers of earthquakes that fall outside
+        the new radius or window are removed by the geo_location platform on
+        the reload, as they are when an earthquake ages out.
+        """
+        entry: ConfigEntry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            errors = validate_input(user_input)
+            if not errors:
+                unique_id = _unique_id(
+                    user_input[CONF_LATITUDE],
+                    user_input[CONF_LONGITUDE],
+                    user_input[CONF_RADIUS_KM],
+                )
+                await self.async_set_unique_id(unique_id)
+                if unique_id != entry.unique_id:
+                    self._abort_if_unique_id_configured()
+                errors = await self._async_validate(user_input)
+
+            if not errors:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    unique_id=unique_id,
+                    title=self._title(user_input),
+                    data=_entry_data(user_input),
+                    reason="reconfigure_successful",
+                )
+
+        schema = _schema(
+            {
+                CONF_LATITUDE: entry.data.get(CONF_LATITUDE, self.hass.config.latitude),
+                CONF_LONGITUDE: entry.data.get(CONF_LONGITUDE, self.hass.config.longitude),
+                CONF_RADIUS_KM: entry.data.get(CONF_RADIUS_KM, DEFAULT_RADIUS_KM),
+                CONF_MIN_MAGNITUDE: entry.data.get(CONF_MIN_MAGNITUDE, DEFAULT_MIN_MAGNITUDE),
+                CONF_DAYS: entry.data.get(CONF_DAYS, DEFAULT_DAYS),
+            }
+        )
+        if user_input is not None:
+            schema = self.add_suggested_values_to_schema(schema, user_input)
+        return self.async_show_form(step_id="reconfigure", data_schema=schema, errors=errors)

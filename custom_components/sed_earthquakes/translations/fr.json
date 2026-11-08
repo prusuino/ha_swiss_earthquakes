@@ -11,6 +11,17 @@
           "min_magnitude": "Magnitude minimale",
           "days": "Fenêtre temporelle (jours)"
         }
+      },
+      "reconfigure": {
+        "title": "Modifier l'emplacement ou les filtres",
+        "description": "Modifie l'emplacement, le rayon, la magnitude minimale ou la fenêtre temporelle de cette entrée. Les capteurs et les marqueurs de la carte conservent leurs identifiants et leur historique ; le nom de l'appareil et le titre de l'entrée suivent le nouveau rayon après le rechargement. Une requête est d'abord envoyée au service SED pour vérifier les valeurs.",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius_km": "Rayon (km)",
+          "min_magnitude": "Magnitude minimale",
+          "days": "Fenêtre temporelle (jours)"
+        }
       }
     },
     "error": {
@@ -21,7 +32,8 @@
       "invalid_days": "Saisissez une fenêtre temporelle d'au moins 1 jour."
     },
     "abort": {
-      "already_configured": "Cette combinaison emplacement/rayon est déjà configurée."
+      "already_configured": "Cette combinaison emplacement/rayon est déjà configurée.",
+      "reconfigure_successful": "L'entrée a été mise à jour et l'intégration rechargée."
     }
   },
   "exceptions": {

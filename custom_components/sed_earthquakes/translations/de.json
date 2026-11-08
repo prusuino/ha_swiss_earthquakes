@@ -11,6 +11,17 @@
           "min_magnitude": "Mindest-Magnitude",
           "days": "Zeitfenster (Tage)"
         }
+      },
+      "reconfigure": {
+        "title": "Standort oder Filter ändern",
+        "description": "Ändert Standort, Umkreis, Mindest-Magnitude oder Zeitfenster dieses Eintrags. Sensoren und Kartenmarker behalten ihre IDs und ihren Verlauf; Gerätename und Eintragstitel folgen nach dem Neuladen dem neuen Umkreis. Vorher geht eine Abfrage an den SED-Dienst, um die Werte zu prüfen.",
+        "data": {
+          "latitude": "Breitengrad",
+          "longitude": "Längengrad",
+          "radius_km": "Umkreis (km)",
+          "min_magnitude": "Mindest-Magnitude",
+          "days": "Zeitfenster (Tage)"
+        }
       }
     },
     "error": {
@@ -21,7 +32,8 @@
       "invalid_days": "Gib ein Zeitfenster von mindestens 1 Tag ein."
     },
     "abort": {
-      "already_configured": "Diese Standort-/Umkreis-Kombination ist bereits konfiguriert."
+      "already_configured": "Diese Standort-/Umkreis-Kombination ist bereits konfiguriert.",
+      "reconfigure_successful": "Der Eintrag wurde aktualisiert und die Integration neu geladen."
     }
   },
   "exceptions": {

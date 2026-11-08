@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 — 2026-11-08
+
+- **New: reconfigure an entry in place.** The entry's menu under **Settings → Devices & services** now offers *Reconfigure*: change the location, the radius, the minimum magnitude or the time window without deleting the entry. The sensors and map markers keep their ids and history, the device name and the entry title follow the new radius, and markers of earthquakes outside the new radius or window disappear with the reload. The form checks the values and queries the SED service once, as the setup form does, and refuses a change that would duplicate another entry. Suggested entity ids carry the radius from the time the entity was created (`sensor.sed_earthquakes_count_150km_7f3a`); they are not renamed, rename them yourself if you care.
+
 ## 1.7.2 — 2026-11-06
 
 - **Fixed: the blueprint *notify on an earthquake* never sent a notification.** It stopped with a template error on every earthquake. Re-import the blueprint to get the fix (Settings → Automations & scenes → Blueprints → the blueprint's menu → Re-import).

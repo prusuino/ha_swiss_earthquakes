@@ -11,6 +11,17 @@
           "min_magnitude": "Minimum magnitude",
           "days": "Time window (days)"
         }
+      },
+      "reconfigure": {
+        "title": "Change location or filters",
+        "description": "Change the location, the radius, the minimum magnitude or the time window of this entry. The sensors and map markers keep their ids and history; the device name and the entry title follow the new radius after the reload. One query goes to the SED service first to verify the values.",
+        "data": {
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "radius_km": "Radius (km)",
+          "min_magnitude": "Minimum magnitude",
+          "days": "Time window (days)"
+        }
       }
     },
     "error": {
@@ -21,7 +32,8 @@
       "invalid_days": "Enter a time window of at least 1 day."
     },
     "abort": {
-      "already_configured": "This location/radius combination is already configured."
+      "already_configured": "This location/radius combination is already configured.",
+      "reconfigure_successful": "The entry was updated and the integration reloaded."
     }
   },
   "exceptions": {

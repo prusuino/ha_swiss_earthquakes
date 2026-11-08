@@ -103,6 +103,8 @@ The integration is listed in the Marketplace default catalog (formerly the HACS 
 5. Done. Add the integration again for a different location or radius — each instance is independent.
 6. Optional: register the [strategy file](#adding-the-strategy-as-a-resource) as a resource and set up the [dashboard](#dashboard). The integration works fully without it — this only saves you building the map card yourself.
 
+**Changing an entry later.** Open the entry's menu (⋮) under **Settings → Devices & services → Swiss Earthquakes (SED)** and choose **Reconfigure** to change the location, radius, minimum magnitude or time window in place. Sensors and markers keep their ids and history; the device name and entry title follow the new radius. Entity ids suggested at creation contain the radius of that time and are not renamed.
+
 ## Dashboard
 
 The integration ships a **dashboard strategy**: a recipe Home Assistant renders in the browser, rather than a dashboard written into your configuration. Nothing is stored, nothing is overwritten, and the result follows your setup — add a second location and its section appears on the next page load; remove one and it is gone. It replaces the "Earthquakes Switzerland" dashboard that versions before 1.3.0 created in your Lovelace storage.
