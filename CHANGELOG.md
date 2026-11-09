@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2 — 2026-11-10
+
+- **New icon and logo.** The integration has a new icon and a new logo, now with a variant for the dark theme. They appear under Settings → Devices & services and in the Marketplace. The README gained a header image.
+
 ## 1.9.1 — 2026-11-09
 
 - **Version on the service card.** The integration's version now appears on its service card under Settings → Devices & services, where the entities are listed.
