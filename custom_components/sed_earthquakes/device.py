@@ -5,7 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 
-from .const import CONF_RADIUS_KM, DOMAIN
+from .const import CONF_RADIUS_KM, DOMAIN, VERSION
 from .localization import t
 
 
@@ -40,6 +40,7 @@ def device_info(hass: HomeAssistant, entry: ConfigEntry) -> DeviceInfo:
     radius = entry.data.get(CONF_RADIUS_KM)
     return DeviceInfo(
         identifiers={(DOMAIN, entry.entry_id)},
+        sw_version=VERSION,
         name=t("device_name", hass, radius=display_radius(radius)),
         manufacturer=t("manufacturer", hass),
         model=t("model", hass),
