@@ -10,6 +10,16 @@ A Home Assistant custom integration that shows recent Swiss earthquakes on a map
 
 ![Swiss Earthquakes map view, showing individual earthquake markers labeled with magnitude, and clustered markers showing a count where several nearby events overlap](screenshot.png)
 
+## Highlights
+
+- **Quakes on the built-in map**: every earthquake within your radius, time window and minimum magnitude as a marker labelled with its magnitude — quarry blasts are filtered out.
+- **Three sensors to build on**: the count with the strongest quake, the time of the latest one and a one-line summary.
+- **Straight from the source**: the FDSN event web service of the Swiss Seismological Service (SED), refreshed every 10 minutes, no account or key.
+- **Built for the automation editor**: an "Earthquake detected" trigger, a "Recent earthquake" condition and a notification blueprint with a minimum magnitude — no templates needed.
+- **A dashboard without building one**: the bundled strategy brings a Map and an Overview view.
+- **Tidy by itself**: markers disappear when a quake ages out of the time window, and a repair notice tells you when the service cannot be reached.
+- **Set up in a minute**: starts from your Home Assistant location; German, English, French and Italian; diagnostics download with your coordinates redacted.
+
 ## Background
 
 The SED operates a public **FDSN Event Web Service** — the same standardized protocol used by seismological networks worldwide — with no authentication required. This integration queries it for earthquakes within a configurable radius, time window, and minimum magnitude around a location, and turns each one into a `geo_location` entity.
