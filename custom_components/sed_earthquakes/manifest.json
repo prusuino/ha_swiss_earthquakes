@@ -1,6 +1,7 @@
 {
   "domain": "sed_earthquakes",
   "name": "Swiss Earthquakes (SED)",
+  "categories": ["weather_alerts.public_warnings"],
   "codeowners": ["@prusuino"],
   "config_flow": true,
   "dependencies": ["http"],
@@ -10,5 +11,5 @@
   "issue_tracker": "https://github.com/prusuino/ha_swiss_earthquakes/issues",
   "quality_scale": "bronze",
   "requirements": [],
-  "version": "1.9.2"
+  "version": "1.9.3"
 }

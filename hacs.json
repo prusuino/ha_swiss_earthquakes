@@ -1,5 +1,6 @@
 {
   "name": "Swiss Earthquakes (SED)",
+  "country": "CH",
   "zip_release": true,
   "filename": "sed_earthquakes.zip",
   "render_readme": true,
