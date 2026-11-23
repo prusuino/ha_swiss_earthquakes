@@ -93,7 +93,14 @@ else:
             self._previous_event: dict[str, str | None] = {}
 
         def entity_filter(self, entities: set[str]) -> set[str]:
-            return _own_entities(self._hass, super().entity_filter(entities))
+            # Start from the event the entities show now, so that an outage
+            # right after the automation starts is judged against it.
+            kept = _own_entities(self._hass, super().entity_filter(entities))
+            for entity_id in kept:
+                state = self._hass.states.get(entity_id)
+                if entity_id not in self._last_event and state is not None and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+                    self._last_event[entity_id] = state.state
+            return kept
 
         def is_valid_transition(self, from_state: State, to_state: State) -> bool:
             if from_state.state == STATE_UNKNOWN:
