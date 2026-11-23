@@ -232,7 +232,7 @@ An action field takes your own steps; the text is available there as `{{ message
 
 ### Trigger in the automation editor
 
-On Home Assistant 2026.10 or newer the integration adds **Earthquake detected** to the automation editor's trigger list: it fires when the latest-earthquake sensor of a location changes, optionally only from a **minimum magnitude**. It targets the integration's own sensors (pick an entity, the location's device or an area); the usual *for* duration and behaviour options apply.
+On Home Assistant 2026.10 or newer the integration adds **Earthquake detected** to the automation editor's trigger list: it fires when the latest-earthquake sensor of a location changes, optionally only from a **minimum magnitude** — also for the first earthquake after a time without one, and for one recorded while the SED could not be reached (an event that merely reappears after an outage does not fire again). It targets the integration's own sensors (pick an entity, the location's device or an area); the usual *for* duration and behaviour options apply.
 
 ```yaml
 triggers:

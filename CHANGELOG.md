@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.4 — 2026-11-23
+
+- **Fixed: "Earthquake detected" stayed silent for the first earthquake after a quiet time.** While there is no earthquake in the time window the latest-earthquake sensor has no value, and Home Assistant ignores every change out of "unknown". So the trigger did not fire for the first quake after a calm period — in a quiet region with a small radius that was every quake. It also missed a quake recorded while the SED could not be reached. Both now fire; an event that only reappears unchanged after an outage does not fire again.
+- Tests for the trigger with real automations.
+
 ## 1.9.3 — 2026-11-19
 
 - The Home Assistant Marketplace lists the integration under *Weather & alerts → Public warnings*. The repository is marked as made for Switzerland. Nothing changes in how the integration works.

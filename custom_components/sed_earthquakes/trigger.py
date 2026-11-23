@@ -15,7 +15,7 @@ from __future__ import annotations
 import voluptuous as vol
 
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN, SensorDeviceClass
-from homeassistant.const import CONF_FOR, CONF_OPTIONS, CONF_TARGET
+from homeassistant.const import CONF_FOR, CONF_OPTIONS, CONF_TARGET, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import config_validation as cv, entity_registry as er
 
@@ -70,19 +70,42 @@ else:
         """The latest-earthquake entity changes: a new earthquake was recorded.
 
         Fires on every new event by default; with a minimum magnitude only
-        when the new event is at least that strong."""
+        when the new event is at least that strong.
+
+        The core skips every change out of "unknown" or "unavailable". The
+        entity is unknown while there is no earthquake in the time window,
+        so the first quake after a quiet time comes out of exactly that
+        state, and it is unavailable while the SED cannot be reached. Both
+        changes are therefore let through: out of "unknown" always (there
+        was no earthquake before), out of "unavailable" when the event
+        differs from the one seen before the outage. The core asks
+        is_valid_state for every state with a value and only then
+        is_valid_transition, so the events are remembered there."""
 
         _domain_specs = LATEST_DOMAIN_SPECS
         _schema = EARTHQUAKE_SCHEMA
+        _excluded_from_states = frozenset()
 
         def __init__(self, hass: HomeAssistant, config) -> None:
             super().__init__(hass, config)
             self._minimum = float(self._options.get(CONF_MINIMUM_MAGNITUDE) or 0.0)
+            self._last_event: dict[str, str] = {}
+            self._previous_event: dict[str, str | None] = {}
 
         def entity_filter(self, entities: set[str]) -> set[str]:
             return _own_entities(self._hass, super().entity_filter(entities))
 
+        def is_valid_transition(self, from_state: State, to_state: State) -> bool:
+            if from_state.state == STATE_UNKNOWN:
+                return True
+            if from_state.state == STATE_UNAVAILABLE:
+                before = self._previous_event.get(to_state.entity_id)
+                return before is not None and before != to_state.state
+            return from_state.state != to_state.state
+
         def is_valid_state(self, state: State, report_not_triggered) -> bool:
+            self._previous_event[state.entity_id] = self._last_event.get(state.entity_id)
+            self._last_event[state.entity_id] = state.state
             if self._minimum <= 0:
                 return True
             magnitude = state.attributes.get("magnitude")
