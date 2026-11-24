@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.5 — 2026-11-24
+
+- **Diagnostics without distances.** The diagnostics download no longer contains distances: the state of the map markers (their distance from the home zone), distance sensors and every distance field are redacted, like the coordinates already were. The points they lead to are public, so a handful of distances was enough to work out where they were measured from. If you posted a diagnostics file publicly, consider removing it.
+
 ## 1.9.4 — 2026-11-23
 
 - **Fixed: "Earthquake detected" stayed silent for the first earthquake after a quiet time.** While there is no earthquake in the time window the latest-earthquake sensor has no value, and Home Assistant ignores every change out of "unknown". So the trigger did not fire for the first quake after a calm period — in a quiet region with a small radius that was every quake. It also missed a quake recorded while the SED could not be reached. Both now fire; an event that only reappears unchanged after an outage does not fire again.
